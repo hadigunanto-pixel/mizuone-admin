@@ -6,7 +6,7 @@
     <title>Mizuone Admin & Registration Portal</title>
     
     <!-- FAVICON (Menggunakan nama standar favicon.jpg tanpa spasi agar dijamin 100% lolos sensor Jekyll GitHub Pages) -->
-    <link rel="icon" type="image/jpeg" href="favicon.jpg?v=3">
+    <link class="js-favicon" rel="icon" type="image/jpeg" href="favicon.jpg?v=3">
     <link rel="shortcut icon" type="image/jpeg" href="favicon.jpg?v=3">
     <link rel="apple-touch-icon" href="favicon.jpg?v=3">
 
@@ -29,8 +29,8 @@
     <header class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-md">
         <div class="max-w-7xl mx-auto px-4 py-5 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-4">
-                <!-- LOGO RESMI MIZUONE -->
-                <div class="bg-white px-3 py-2 rounded-xl shadow-inner flex items-center justify-center h-[52px] w-[140px]">
+                <!-- LOGO RESMI MIZUONE (Ukuran diperbesar menjadi h-[68px] dan w-[180px] agar lebih jelas dan proporsional) -->
+                <div class="bg-white px-4 py-2 rounded-xl shadow-inner flex items-center justify-center h-[68px] w-[180px] transition-all duration-300">
                     <img src="Logo MizuOne (1).png" alt="Logo MizuOne" class="max-h-full max-w-full object-contain" onerror="handleLogoError(this)">
                 </div>
                 <div>
@@ -367,7 +367,7 @@
 
                 // Update UI Status jika sukses
                 const statusBox = document.getElementById('connectionStatus');
-                statusBox.className = "flex items-center gap-2 bg-emerald-800/50 px-4 py-2 rounded-lg text-sm border border-emerald-500/30";
+                statusBox.className = "flex items-center gap-2 bg-emerald-800/50 px-4 py-2 rounded-lg text-sm border border-blue-500/30";
                 statusBox.innerHTML = `
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
                     <span class="text-xs font-medium">Terhubung ke Supabase</span>
