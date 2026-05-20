@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mizuone Admin & Registration Portal</title>
     
-    <!-- FAVICON (Menggunakan berkas DSM LOGO.jpg dari root GitHub) -->
-    <link rel="icon" type="image/jpeg" href="DSM LOGO.jpg">
-    <link rel="shortcut icon" type="image/jpeg" href="DSM LOGO.jpg">
+    <!-- FAVICON (Menggunakan URL-encoding %20 untuk menggantikan spasi agar terbaca sempurna di GitHub Pages) -->
+    <link rel="icon" type="image/jpeg" href="DSM%20LOGO.jpg">
+    <link rel="shortcut icon" type="image/jpeg" href="DSM%20LOGO.jpg">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -34,7 +34,7 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-bold tracking-tight">Mizuone Smart Monitoring</h1>
-                    <p class="text-xs text-blue-100">Portal Administrasi & Registrasi Manual Data Master</p>
+                    <p class="text-xs text-blue-100">Portal Administrasi & Registrations Manual Data Master</p>
                 </div>
             </div>
             <!-- API Status Badge -->
@@ -282,7 +282,7 @@
         let supabaseClient = null;
         let activeTab = 'teknisi';
 
-        // Safe Logo Fallback Handler (mencegah error tanda kutip dalam HTML)
+        // Safe Logo Fallback Handler
         function handleLogoError(img) {
             img.onerror = null; 
             img.parentNode.innerHTML = '<div class="text-blue-600 font-bold text-lg tracking-wider">MIZUONE</div>';
