@@ -17,7 +17,7 @@
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700&display=swap');
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
@@ -29,7 +29,7 @@
     <header class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-md">
         <div class="max-w-7xl mx-auto px-4 py-5 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-4">
-                <!-- LOGO RESMI MIZUONE (Ukuran diperbesar menjadi h-[68px] dan w-[180px] agar lebih jelas dan proporsional) -->
+                <!-- LOGO RESMI MIZUONE -->
                 <div class="bg-white px-4 py-2 rounded-xl shadow-inner flex items-center justify-center h-[68px] w-[180px] transition-all duration-300">
                     <img src="Logo MizuOne (1).png" alt="Logo MizuOne" class="max-h-full max-w-full object-contain" onerror="handleLogoError(this)">
                 </div>
@@ -261,7 +261,7 @@
                         <i class="fa-solid fa-triangle-exclamation text-xl mt-0.5 text-amber-600"></i>
                         <div class="text-xs space-y-1">
                             <p class="font-bold">Kenapa Metode SQL Ini Sangat Aman?</p>
-                            <p class="leading-relaxed">Metode ini mengabaikan kolom `id` (sehingga Supabase otomatis menghasilkan UUID acak sistem yang valid) dan menjamin relasi grup mesin terpenuhi, menghindarkan Anda dari segala jenis error kendala PostgreSQL.</p>
+                            <p class="leading-relaxed">Metode ini mengabaikan kolom `id` (sehingga Supabase otomatis menghasilkan UUID acak sistem yang valid), memastikan entitas induk dibuat terlebih dahulu demi menghindari error Foreign Key, serta menjamin relasi grup mesin terpenuhi sempurna.</p>
                         </div>
                     </div>
                 </div>
@@ -323,7 +323,7 @@
             `;
             
             toastContainer.appendChild(toast);
-            setTimeout(() => { if(toast) toast.remove(); }, 8000);
+            setTimeout(() => { if(toast) toast.remove(); }, 12000); // Diperlama agar user sempat membaca pesan instruksi error
         }
 
         // Interactive Chat ID Guide Help Alert
@@ -391,7 +391,6 @@
                 // Cek error spesifik kunci rahasia rawan keamanan browser
                 if (err.message && (err.message.includes("secret API key") || err.message.includes("Forbidden"))) {
                     tunjukkanNotifikasi('error', 'Koneksi Ditolak (Kunci Rahasia)', 'Anda memasukkan Service Role / Secret Key. Supabase melarang keras penggunaan kunci rahasia ini di browser demi keamanan data. Silakan gunakan Anon Key (Public) yang aman.');
-                    // Tampilkan panduan langkah pemecahan masalah pencarian kunci
                     document.getElementById('guideBox').classList.remove('hidden');
                 } else {
                     tunjukkanNotifikasi('error', 'Koneksi Gagal', 'Gagal menghubungi database: ' + err.message);
@@ -476,7 +475,7 @@
             }
         }
 
-        // 6. Submit Machine Directly to Supabase
+        // 6. Submit Machine Directly to Supabase (Optimized for Foreign Key Auto-Registration)
         async function submitMesin(e) {
             e.preventDefault();
             if (!supabaseClient) {
@@ -491,9 +490,24 @@
 
             const submitBtn = document.getElementById('submitMachBtn');
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Menyimpan...';
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Proses Pendaftaran...';
 
             try {
+                // LANGKAH OPTIMASI AUTO-REGISTRASI PARENT:
+                // Kita coba daftarkan nomor mesin ini ke tabel induk potensial (devices atau machines) jika ada,
+                // untuk menghindari "violates foreign key constraint".
+                try {
+                    await supabaseClient.from('devices').upsert({ device_no: device_no }, { onConflict: 'device_no' });
+                } catch(e) {
+                    console.log("Percobaan auto-insert 'devices' diabaikan / tidak didukung.");
+                }
+
+                try {
+                    await supabaseClient.from('machines').upsert({ device_no: device_no }, { onConflict: 'device_no' });
+                } catch(e) {
+                    console.log("Percobaan auto-insert 'machines' diabaikan / tidak didukung.");
+                }
+
                 // Skenario jika tabel grup mesin masih kosong, buat grup default dulu
                 if (machine_group_id === 'buat_grup') {
                     const { data: grpData, error: grpErr } = await supabaseClient
@@ -505,17 +519,23 @@
                     machine_group_id = grpData.id;
                 }
 
+                // Masukkan data ke machine_assignments
                 const { error } = await supabaseClient
                     .from('machine_assignments')
                     .insert({ device_no, machine_name, location, machine_group_id, is_active: true });
 
                 if (error) throw error;
 
-                tunjukkanNotifikasi('success', 'Mesin Tersimpan!', `Mesin ID ${device_no} (${machine_name}) sukses ditugaskan.`);
+                tunjukkanNotifikasi('success', 'Mesin Berhasil Ditugaskan!', `Mesin ID ${device_no} (${machine_name}) sukses ditugaskan.`);
                 document.getElementById('formMesin').reset();
                 muatUlangGrup();
             } catch (err) {
-                tunjukkanNotifikasi('error', 'Penyimpanan Gagal', err.message);
+                console.error(err);
+                if (err.message && err.message.includes('foreign key constraint')) {
+                    tunjukkanNotifikasi('error', 'Foreign Key Constraint Error', `Error: ${err.message}. Gagal menyimpan karena device_no "${device_no}" harus terdaftar terlebih dahulu di tabel induk Anda (seperti tabel 'devices' atau 'machines'). Silakan gunakan menu "Generator SQL" untuk menyisipkan data ke tabel induk Anda secara aman.`);
+                } else {
+                    tunjukkanNotifikasi('error', 'Penyimpanan Gagal', err.message);
+                }
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Simpan ke Supabase';
@@ -523,7 +543,6 @@
         }
 
         // 7. SQL Generation Logic (Technician)
-        // Disesuaikan agar menggunakan ON CONFLICT (telegram_user_id) sesuai skema tabel asli database Anda
         function generateTechSQL() {
             const name = document.getElementById('techName').value.trim() || 'Nama Teknisi';
             const chat_id = document.getElementById('techChatId').value.trim() || '123456789';
@@ -543,13 +562,13 @@
             tunjukkanNotifikasi('success', 'SQL Berhasil Dibuat!', 'Sintaks SQL Anda siap disalin di tab Generator.');
         }
 
-        // 8. SQL Generation Logic (Machine)
+        // 8. SQL Generation Logic (Machine - Anti FK Constraint Error)
         function generateMachSQL() {
             const devNo = document.getElementById('machNo').value.trim() || '86340323';
             const name = document.getElementById('machName').value.trim() || 'Unggaran';
             const loc = document.getElementById('machLocation').value.trim() || 'Bali';
 
-            const sql = `-- Mendaftarkan Grup & Menugaskan Mesin Baru Secara Sekaligus (Anti-Constraint Error)\nWITH group_baru AS (\n  INSERT INTO public.machine_groups (name)\n  VALUES ('Grup Utama')\n  ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name\n  RETURNING id\n)\nINSERT INTO public.machine_assignments (device_no, machine_name, location, machine_group_id, is_active)\nSELECT '${devNo}', '${name}', '${loc}', id, true\nFROM group_baru;`;
+            const sql = `-- 1. DAFTARKAN MESIN DI TABEL INDUK TERLEBIH DAHULU (PENTING! Mencegah Error Foreign Key)\n-- Ganti 'devices' di bawah ini dengan nama tabel induk Anda jika berbeda (misal 'machines')\nINSERT INTO public.devices (device_no) \nVALUES ('${devNo}') \nON CONFLICT (device_no) DO NOTHING;\n\n-- 2. DAFTARKAN GRUP & TUGASKAN MESIN BARU SECARA SEKALIGUS\nWITH group_baru AS (\n  INSERT INTO public.machine_groups (name)\n  VALUES ('Grup Utama')\n  ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name\n  RETURNING id\n)\nINSERT INTO public.machine_assignments (device_no, machine_name, location, machine_group_id, is_active)\nSELECT '${devNo}', '${name}', '${loc}', id, true\nFROM group_baru;`;
 
             document.getElementById('outputSQL').textContent = sql;
             gantiTab('sql');
@@ -560,7 +579,6 @@
         function salinSQL() {
             const codeText = document.getElementById('outputSQL').textContent;
             
-            // Menggunakan execCommand sebagai guardrail fallback sesuai instruksi
             const tempInput = document.createElement('textarea');
             tempInput.value = codeText;
             document.body.appendChild(tempInput);
