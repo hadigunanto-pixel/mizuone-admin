@@ -5,670 +5,674 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mizuone Admin & Registration Portal</title>
     
-    <!-- FAVICON (Menggunakan nama standar favicon.jpg tanpa spasi agar dijamin 100% lolos sensor Jekyll GitHub Pages) -->
     <link class="js-favicon" rel="icon" type="image/jpeg" href="favicon.jpg?v=3">
     <link rel="shortcut icon" type="image/jpeg" href="favicon.jpg?v=3">
     <link rel="apple-touch-icon" href="favicon.jpg?v=3">
 
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Supabase JS Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2\"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+<body class="bg-slate-50 text-slate-800 min-h-screen">
 
-    <!-- HEADER BAR -->
-    <header class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-md">
-        <div class="max-w-7xl mx-auto px-4 py-5 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-4">
-                <!-- LOGO RESMI MIZUONE -->
-                <div class="bg-white px-4 py-2 rounded-xl shadow-inner flex items-center justify-center h-[68px] w-[180px] transition-all duration-300">
-                    <img src="Logo MizuOne (1).png" alt="Logo MizuOne" class="max-h-full max-w-full object-contain" onerror="handleLogoError(this)">
+    <header class="bg-gradient-to-r from-blue-700 to-indigo-800 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mountains-mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white/10 p-2 rounded-lg backdrop-blur-sm">
+                    <i class="fa-solid stroke-2 fa-droplet text-xl text-cyan-300 animate-pulse"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold tracking-tight">Mizuone Smart Monitoring</h1>
-                    <p class="text-xs text-blue-100">Portal Administrasi & Simulator Alarm Pengujian n8n</p>
+                    <h1 class="text-lg font-bold tracking-tight">MIZUONE</h1>
+                    <p class="text-xs text-blue-200">Smart Monitoring & Automation Portal</p>
                 </div>
             </div>
-            <!-- API Status Badge -->
-            <div id="connectionStatus" class="flex items-center gap-2 bg-blue-800/50 px-4 py-2 rounded-lg text-sm border border-blue-500/30">
-                <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
-                <span class="text-xs font-medium">Supabase Belum Terhubung</span>
+            
+            <div class="flex items-center space-x-2 bg-black/10 p-1.5 rounded-lg border border-white/10 text-xs grow md:grow-0 max-w-xl">
+                <input type="password" id="supabaseKey" placeholder="Masukkan Supabase Public Anon Key Anda..." class="bg-slate-900/50 text-white placeholder-slate-400 px-3 py-1.5 rounded border border-slate-700/50 focus:outline-none focus:border-cyan-400 grow min-w-[220px]">
+                <input type="hidden" id="supabaseUrl" value="https://xtgclwzidxgscjxlwzqy.supabase.co">
+                <button onclick="hubungkanSupabase()" class="bg-cyan-500 hover:bg-cyan-600 active:scale-95 transition-all text-slate-900 font-semibold px-4 py-1.5 rounded shadow flex items-center gap-1.5 shrink-0">
+                    <i class="fa-solid fa-plug text-xs"></i> Hubungkan
+                </button>
             </div>
         </div>
     </header>
 
-    <!-- MAIN CONTENT -->
-    <main class="flex-1 max-w-7xl mx-auto px-4 py-8 w-full grid grid-cols-1 lg:grid-cols-4 gap-8">
-        
-        <!-- SIDEBAR / CONFIGURATION -->
-        <div class="lg:col-span-1 space-y-6">
-            <!-- SUPABASE API SETTINGS -->
-            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                <h3 class="font-bold text-slate-900 flex items-center gap-2 mb-4">
-                    <i class="fa-solid fa-key text-blue-500"></i>
-                    Koneksi Supabase
-                </h3>
-                <p class="text-xs text-slate-500 mb-4">Masukkan kredensial Supabase Anda untuk menghubungkan formulir secara langsung ke database.</p>
-                
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Project URL</label>
-                        <input type="text" id="supabaseUrl" value="https://ryhoeaeymskrjsvisofx.supabase.co" class="w-full text-sm px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1 flex justify-between">
-                            <span>Public Anon API Key *</span>
-                        </label>
-                        <input type="password" id="supabaseKey" placeholder="Masukkan Public Anon Key (bukan service_role)" class="w-full text-sm px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50">
-                        <p class="text-[10px] text-slate-400 mt-1 leading-relaxed">Gunakan key berlabel <strong>"anon" "public"</strong> di dasbor Supabase Anda. Kunci rahasia "service_role" dilarang demi keamanan.</p>
-                    </div>
-                    <button onclick="hubungkanSupabase()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm">
-                        <i class="fa-solid fa-plug"></i>
-                        Hubungkan Database
-                    </button>
-                </div>
-            </div>
+    <div id="toastContainer" class="fixed top-20 right-4 z-50 flex flex-col gap-2 max-w-md w-full pointer-events-none"></div>
 
-            <!-- LOCAL ASSET PATH INFO -->
-            <div class="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm space-y-3">
-                <h4 class="font-bold text-slate-900 flex items-center gap-2 text-sm">
-                    <i class="fa-solid fa-folder-open text-blue-500"></i>
-                    Folder Aset Lokal
-                </h4>
-                <p class="text-[11px] text-slate-500 leading-relaxed">
-                    Agar logo resmi <strong>Logo MizuOne (1).png</strong> dan favicon <strong>favicon.jpg</strong> dapat termuat otomatis, pastikan kedua file berada di folder yang sama dengan file HTML ini:
-                </p>
-                <div class="bg-slate-50 hover:bg-slate-100 p-2.5 rounded-lg border border-slate-200 text-[10px] font-mono text-slate-600 break-all select-all cursor-pointer transition-colors" title="Klik untuk menyalin" onclick="salinPathAset(this)">
-                    C:\Users\USER\OneDrive\AI\Hadi Brain\Area\Kerja\Perusahaan\Dinasty Sahabat Mulia\Marketing\Aset\
-                </div>
-                <p class="text-[9px] text-slate-400 italic flex items-center gap-1">
-                    <i class="fa-solid fa-mouse-pointer text-blue-400"></i> Klik jalur abu-abu di atas untuk menyalin cepat.
-                </p>
-            </div>
+    <main class="max-w-7xl mx-auto px-4 py-6">
+        <div id="connectionStatusBanner" class="mb-6 p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 flex items-center gap-2.5 text-sm shadow-sm transition-all">
+            <i class="fa-solid fa-circle-exclamation text-amber-500 text-base"></i>
+            <span><strong>Status Koneksi:</strong> Belum Terhubung ke Database Supabase. Silakan masukkan Anon Key di atas untuk memulai pengisian data secara riil.</span>
+        </div>
 
-            <!-- MANUAL SQL INFO -->
-            <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-6">
-                <h4 class="font-bold text-indigo-900 flex items-center gap-2 mb-2 text-sm">
-                    <i class="fa-solid fa-lightbulb"></i>
-                    Uji Aliran n8n
-                </h4>
-                <p class="text-xs text-indigo-700 leading-relaxed">
-                    Setelah berhasil mendaftarkan mesin dan teknisi, Anda bisa beralih ke tab <strong>"Simulator Alarm"</strong> untuk menembakkan sinyal pengujian langsung ke skema n8n Anda.
-                </p>
+        <div class="border-b border-slate-200 mb-6 flex flex-wrap gap-1">
+            <button onclick="gantiTab('teknisi')" id="tabBtn-teknisi" class="px-5 py-3 font-medium text-sm border-b-2 transition-all flex items-center gap-2 border-blue-600 text-blue-600 bg-white rounded-t-lg shadow-sm">
+                <i class="fa-solid fa-user-gear"></i> Registrasi Teknisi
+            </button>
+            <button onclick="gantiTab('mesin')" id="tabBtn-mesin" class="px-5 py-3 font-medium text-sm border-b-2 transition-all flex items-center gap-2 border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-t-lg">
+                <i class="fa-solid fa-server"></i> Registrasi Mesin Baru
+            </button>
+            <button onclick="gantiTab('simulator')" id="tabBtn-simulator" class="px-5 py-3 font-medium text-sm border-b-2 transition-all flex items-center gap-2 border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-t-lg">
+                <i class="fa-solid fa-circle-play"></i> Simulator Alarm (n8n)
+            </button>
+            <button onclick="gantiTab('sql')" id="tabBtn-sql" class="px-5 py-3 font-medium text-sm border-b-2 transition-all flex items-center gap-2 border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-t-lg">
+                <i class="fa-solid fa-code"></i> Generator SQL Backup
+            </button>
+        </div>
+
+        <div id="tab-teknisi" class="tab-content transition-all duration-200">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200/80 lg:col-span-1">
+                    <h2 class="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-user-plus text-blue-600"></i> Input Data Teknisi Aktif
+                    </h2>
+                    <form id="formTeknisi" onsubmit="simpanTeknisi(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Lengkap Teknisi</label>
+                            <input type="text" id="techName" required placeholder="Contoh: Hadi Gunanto" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Telegram User ID (Angka Unik)</label>
+                            <input type="number" id="techUserId" required placeholder="Contoh: 123456789" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                            <p class="text-[11px] text-slate-400 mt-0.5">Dapat diperoleh via bot @userinfobot di Telegram.</p>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Telegram Chat ID (Japri)</label>
+                            <input type="number" id="techChatId" required placeholder="Sama dengan User ID untuk chat pribadi" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Wilayah / Kelompok Kerja</label>
+                            <select id="techGroupId" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-600">
+                                <option value="">Memuat data kelompok...</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg shadow text-sm transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-floppy-disk"></i> Simpan ke Supabase
+                        </button>
+                    </form>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200/80 lg:col-span-2">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-address-book text-emerald-600"></i> Daftar Teknisi Terdaftar di Lapangan
+                        </h2>
+                        <button onclick="muatDaftarTeknisi()" class="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1 font-medium bg-blue-50 px-2.5 py-1.5 rounded-md border border-blue-100">
+                            <i class="fa-solid fa-rotate"></i> Refresh Data
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto border border-slate-100 rounded-lg">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-100">
+                                    <th class="p-3">Nama Teknisi</th>
+                                    <th class="p-3">User ID Telegram</th>
+                                    <th class="p-3">Chat ID Japri</th>
+                                    <th class="p-3">Grup Wilayah</th>
+                                    <th class="p-3 text-center">Status Notif</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelTeknisiBody" class="divide-y divide-slate-50 text-slate-700">
+                                <tr>
+                                    <td colspan="5" class="p-4 text-center text-slate-400 italic bg-slate-50/30">Hubungkan Anon Key Supabase untuk menarik daftar data fisik...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- FORM & INTERACTIVE SECTION -->
-        <div class="lg:col-span-3 space-y-6">
-            
-            <!-- TABS NAVIGATION -->
-            <div class="bg-white p-2 rounded-xl shadow-sm border border-slate-100 flex gap-2 overflow-x-auto">
-                <button onclick="gantiTab('teknisi')" id="btnTabTeknisi" class="flex-1 min-w-[120px] py-2.5 px-3 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 bg-blue-50 text-blue-600">
-                    <i class="fa-solid fa-user-gear"></i>
-                    Registrasi Teknisi
-                </button>
-                <button onclick="gantiTab('mesin')" id="btnTabMesin" class="flex-1 min-w-[120px] py-2.5 px-3 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-50">
-                    <i class="fa-solid fa-screwdriver-wrench"></i>
-                    Registrasi Mesin
-                </button>
-                <button onclick="gantiTab('simulator')" id="btnTabSimulator" class="flex-1 min-w-[120px] py-2.5 px-3 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-50">
-                    <i class="fa-solid fa-circle-play text-rose-500"></i>
-                    Simulator Alarm (Uji n8n)
-                </button>
-                <button onclick="gantiTab('sql')" id="btnTabSql" class="flex-1 min-w-[120px] py-2.5 px-3 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-50">
-                    <i class="fa-solid fa-code"></i>
-                    Generator SQL
-                </button>
-            </div>
-
-            <!-- TAB CONTENT: REGISTRASI TEKNISI -->
-            <div id="tabTeknisi" class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-6">
-                <div>
-                    <h2 class="text-lg font-bold text-slate-900">Registrasi Manual Teknisi (Sesuai Kolom Database Nyata)</h2>
-                    <p class="text-xs text-slate-500">Mendaftarkan teknisi baru dengan pemetaan lengkap termasuk Telegram User ID, Chat ID, dan Wilayah Kerja.</p>
-                </div>
-
-                <form id="formTeknisi" onsubmit="submitTeknisi(event)" class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div id="tab-mesin" class="tab-content hidden transition-all duration-200">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200/80 lg:col-span-1">
+                    <h2 class="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-square-plus text-indigo-600"></i> Daftarkan Penugasan Mesin
+                    </h2>
+                    <form id="formMesin" onsubmit="simpanMesin(event)" class="space-y-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nama Lengkap Teknisi *</label>
-                            <input type="text" id="techName" required placeholder="Contoh: Hadi Gunanto" class="w-full text-sm px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Device No (ID IoT Unik)</label>
+                            <input type="text" id="machDeviceNo" required placeholder="Contoh: 9999901" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Pilih Wilayah / Grup Kerja</label>
-                            <select id="techGroupId" class="w-full text-sm px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                                <option value="">-- Tanpa Grup (Umum) --</option>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Nama / Merk Mesin Refill</label>
+                            <input type="text" id="machName" required placeholder="Contoh: Depot Quench Pusat" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Lokasi Pemasangan Lapangan</label>
+                            <input type="text" id="machLocation" required placeholder="Contoh: Blimbing, Malang" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Grup Penugasan</label>
+                            <select id="machGroupId" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-600">
+                                <option value="">Memuat data kelompok...</option>
                             </select>
                         </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1 flex justify-between">
-                                <span>Telegram Chat ID *</span>
-                                <span class="text-slate-400 normal-case font-normal text-[10px] cursor-help" onclick="bukaPetunjukID()"><i class="fa-solid fa-circle-question text-blue-500"></i> Cara Cari ID</span>
-                            </label>
-                            <input type="number" id="techChatId" required placeholder="Contoh: 5948330044" class="w-full text-sm px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <div class="pt-2 flex gap-2">
+                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg shadow text-sm transition-all flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> Tanam Data Mesin
+                            </button>
+                            <button type="button" onclick="buatSQLMesin()" class="bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 font-medium px-3 rounded-lg text-sm transition-all title='Buka Generator SQL'">
+                                <i class="fa-solid fa-code"></i>
+                            </button>
                         </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Telegram User ID *</label>
-                            <input type="number" id="techUserId" required placeholder="Contoh: 5948330044" class="w-full text-sm px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-                    </div>
-
-                    <div class="flex items-center gap-2">
-                        <input type="checkbox" id="techActive" checked class="w-4 h-4 text-blue-600 border-slate-200 rounded focus:ring-blue-500">
-                        <label for="techActive" class="text-sm font-medium text-slate-700">Set sebagai aktif (Siap menerima notifikasi)</label>
-                    </div>
-
-                    <div class="pt-4 border-t border-slate-100 flex justify-end gap-3">
-                        <button type="button" onclick="generateTechSQL()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm py-2 px-4 rounded-lg transition-colors flex items-center gap-2">
-                            <i class="fa-solid fa-gears"></i> Buat SQL Saja
-                        </button>
-                        <button type="submit" id="submitTechBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm py-2 px-5 rounded-lg transition-colors flex items-center gap-2 shadow-sm">
-                            <i class="fa-solid fa-floppy-disk"></i> Simpan ke Supabase
+                    </form>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200/80 lg:col-span-2">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-network-wired text-purple-600"></i> Pemetaan Mesin Aktif (machine_assignments)
+                        </h2>
+                        <button onclick="muatDaftarMesin()" class="text-xs text-indigo-600 hover:text-indigo-800 flex items-center gap-1 font-medium bg-indigo-50 px-2.5 py-1.5 rounded-md border border-indigo-100">
+                            <i class="fa-solid fa-rotate"></i> Refresh Data
                         </button>
                     </div>
-                </form>
-            </div>
-
-            <!-- TAB CONTENT: REGISTRASI MESIN -->
-            <div id="tabMesin" class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-6 hidden">
-                <div>
-                    <h2 class="text-lg font-bold text-slate-900">Registrasi & Penugasan Mesin (Assignments)</h2>
-                    <p class="text-xs text-slate-500">Mendaftarkan nomor mesin lapangan ke tabel `machine_assignments` lengkap dengan nama lokasi ramah manusia.</p>
-                </div>
-
-                <form id="formMesin" onsubmit="submitMesin(event)" class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nomor Mesin (Device No) *</label>
-                            <input type="text" id="machNo" required placeholder="Contoh: 86340323" class="w-full text-sm px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nama Mesin *</label>
-                            <input type="text" id="machName" required placeholder="Contoh: Unggaran" class="w-full text-sm px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
+                    <div class="overflow-x-auto border border-slate-100 rounded-lg">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-100">
+                                    <th class="p-3">Device No</th>
+                                    <th class="p-3">Nama Unit Mesin</th>
+                                    <th class="p-3">Lokasi Fisik</th>
+                                    <th class="p-3">UUID Relasi Grup</th>
+                                    <th class="p-3 text-center">Status Monitor</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelMesinBody" class="divide-y divide-slate-50 text-slate-700">
+                                <tr>
+                                    <td colspan="5" class="p-4 text-center text-slate-400 italic bg-slate-50/30">Hubungkan Anon Key Supabase untuk menarik daftar data fisik...</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Lokasi Fisik Mesin *</label>
-                            <input type="text" id="machLocation" required placeholder="Contoh: Bali" class="w-full text-sm px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Pilih Machine Group *</label>
-                            <div class="flex gap-2">
-                                <select id="machGroupId" required class="flex-1 text-sm px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                                    <option value="">-- Hubungkan Supabase Dulu / Masukkan SQL --</option>
-                                </select>
-                                <button type="button" onclick="muatUlangGrup()" class="bg-slate-100 hover:bg-slate-200 p-2 rounded-lg text-slate-600 transition-colors" title="Refresh Daftar Group">
-                                    <i class="fa-solid fa-arrows-rotate"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="pt-4 border-t border-slate-100 flex justify-end gap-3">
-                        <button type="button" onclick="generateMachSQL()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm py-2 px-4 rounded-lg transition-colors flex items-center gap-2">
-                            <i class="fa-solid fa-gears"></i> Buat SQL Saja
-                        </button>
-                        <button type="submit" id="submitMachBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm py-2 px-5 rounded-lg transition-colors flex items-center gap-2 shadow-sm">
-                            <i class="fa-solid fa-floppy-disk"></i> Simpan ke Supabase
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- TAB CONTENT: SIMULATOR ALARM & TESTING PANEL -->
-            <div id="tabSimulator" class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-6 hidden">
-                <div>
-                    <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-                        <i class="fa-solid fa-circle-radiation text-rose-500 animate-pulse"></i>
-                        Simulator Sinyal Alarm Lapangan
-                    </h2>
-                    <p class="text-xs text-slate-500">Kirim payload simulasi kerusakan mesin dari portal ini langsung menuju webhook n8n Anda untuk pengujian end-to-end tanpa menunggu kerusakan nyata.</p>
-                </div>
-
-                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Target Webhook URL n8n Anda *</label>
-                        <input type="text" id="n8nWebhookUrl" placeholder="https://n8n.domain.com/webhook-test/mizuone-alert" class="w-full text-xs font-mono px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 bg-white">
-                        <p class="text-[9px] text-slate-400 mt-1">Gunakan tautan <strong>test-webhook</strong> dari n8n agar Anda bisa memantau aliran datanya secara interaktif.</p>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Pilih Mesin Percobaan *</label>
-                        <select id="simTargetMachine" onchange="sinkronSkenario()" class="w-full text-xs px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 bg-white">
-                            <option value="9999901">Mesin Dummy Default (9999901 - Kantor)</option>
-                        </select>
-                        <p class="text-[9px] text-slate-400 mt-1">Daftar ini ditarik dinamis dari tabel <strong>machine_assignments</strong> Anda.</p>
-                    </div>
-                </div>
-
-                <div class="space-y-3">
-                    <label class="block text-xs font-semibold text-slate-700 uppercase">Pilih Skenario Kasus Alarm</label>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <!-- Skenario 1 -->
-                        <label onclick="pilihSkenario(14)" class="cursor-pointer border border-slate-200 hover:border-blue-300 bg-white p-4 rounded-xl flex items-start gap-3 transition-all" id="skenCard14">
-                            <input type="radio" name="skenAlarm" value="14" checked class="mt-1 text-blue-600 focus:ring-blue-500">
-                            <div>
-                                <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Tipe 14</span>
-                                <h4 class="font-bold text-xs mt-1.5 text-slate-900">Koneksi Mesin Terputus</h4>
-                                <p class="text-[10px] text-slate-500 leading-normal mt-1">Mengirimkan sinyal kehilangan heartbeat (Status: Offline) ke teknisi.</p>
-                            </div>
-                        </label>
-                        <!-- Skenario 2 -->
-                        <label onclick="pilihSkenario(12)" class="cursor-pointer border border-slate-200 hover:border-amber-300 bg-white p-4 rounded-xl flex items-start gap-3 transition-all" id="skenCard12">
-                            <input type="radio" name="skenAlarm" value="12" class="mt-1 text-amber-600 focus:ring-amber-500">
-                            <div>
-                                <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Tipe 12</span>
-                                <h4 class="font-bold text-xs mt-1.5 text-slate-900">TDS Melampaui Batas</h4>
-                                <p class="text-[10px] text-slate-500 leading-normal mt-1">Mengirim kendala alat dengan nilai TDS 78 PPM (Batas normal &lt; 50 PPM).</p>
-                            </div>
-                        </label>
-                        <!-- Skenario 3 -->
-                        <label onclick="pilihSkenario(13)" class="cursor-pointer border border-slate-200 hover:border-rose-300 bg-white p-4 rounded-xl flex items-start gap-3 transition-all" id="skenCard13">
-                            <input type="radio" name="skenAlarm" value="13" class="mt-1 text-rose-600 focus:ring-rose-500">
-                            <div>
-                                <span class="bg-rose-100 text-rose-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Tipe 13</span>
-                                <h4 class="font-bold text-xs mt-1.5 text-slate-900">Keausan Filter &gt;= 90%</h4>
-                                <p class="text-[10px] text-slate-500 leading-normal mt-1">Mengirim status degradasi fisik filter karbon aktif (Pemakaian saat ini: 94%).</p>
-                            </div>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 pt-2">
-                    <!-- JSON Payload View -->
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Payload JSON Yang Akan Dikirim</label>
-                        <div class="bg-slate-900 rounded-xl p-4 font-mono text-[11px] text-emerald-400 overflow-x-auto h-[180px]">
-                            <pre id="jsonPayloadPreview"></pre>
-                        </div>
-                    </div>
-                    <!-- Response Terminal Log -->
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Log Hasil Respon n8n Webhook</label>
-                        <div id="simLogTerminal" class="bg-slate-900 rounded-xl p-4 font-mono text-[11px] text-slate-300 overflow-y-auto h-[180px] border border-slate-800">
-                            <span class="text-slate-500">// Menunggu perintah eksekusi dari Anda...</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="pt-4 border-t border-slate-100 flex justify-end gap-3">
-                    <button onclick="bersihkanLogSimulasi()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs py-2 px-4 rounded-lg transition-colors">
-                        <i class="fa-solid fa-eraser"></i> Bersihkan Log
-                    </button>
-                    <button onclick="kirimSimulasiKeN8n()" id="btnKirimSimulasi" class="bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs py-2.5 px-6 rounded-lg transition-colors flex items-center gap-2 shadow-md">
-                        <i class="fa-solid fa-paper-plane"></i> Tembakkan Alarm Ke n8n
-                    </button>
                 </div>
             </div>
+        </div>
 
-            <!-- TAB CONTENT: GENERATOR SQL -->
-            <div id="tabSql" class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-6 hidden">
-                <div>
-                    <h2 class="text-lg font-bold text-slate-900">SQL Command Generator</h2>
-                    <p class="text-xs text-slate-500">Salin perintah SQL di bawah ini dan jalankan di **SQL Editor** Supabase Anda untuk jaminan penyimpanan sukses 100%.</p>
+        <div id="tab-simulator" class="tab-content hidden transition-all duration-200">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200/80 max-w-4xl mx-auto">
+                <div class="flex items-center space-x-3 mb-4 pb-3 border-b border-slate-100">
+                    <div class="bg-amber-100 text-amber-700 p-2 rounded-lg">
+                        <i class="fa-solid fa-tower-broadcast text-lg animate-pulse"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-bold text-slate-900">Simulator Tembak Alarm Otomasi n8n</h2>
+                        <p class="text-xs text-slate-500">Gunakan panel ini untuk mensimulasikan sinyal darurat dari mesin IoT menuju Webhook n8n dengan struktur parameter Supabase fisik riil.</p>
+                    </div>
                 </div>
 
                 <div class="space-y-4">
-                    <div class="bg-slate-900 rounded-xl p-4 relative font-mono text-xs text-emerald-400 overflow-x-auto min-h-[150px]">
-                        <button onclick="salinSQL()" class="absolute top-3 right-3 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all border border-slate-700 text-[11px]">
-                            <i class="fa-regular fa-copy"></i> Salin Kode
-                        </button>
-                        <pre id="outputSQL">-- Silakan isi form di tab 'Registrasi' lalu klik 'Buat SQL Saja'
--- Kode SQL instan Anda akan otomatis muncul di sini...</pre>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Target Webhook n8n URL (Test / Production)</label>
+                        <input type="text" id="n8nWebhookUrl" placeholder="Masukkan URL Webhook n8n Anda (contoh: https://primary-production.up.railway.app/webhook-test/...)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-mono text-xs text-slate-600">
                     </div>
-                    
-                    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3 text-amber-900">
-                        <i class="fa-solid fa-triangle-exclamation text-xl mt-0.5 text-amber-600"></i>
-                        <div class="text-xs space-y-1">
-                            <p class="font-bold">Kenapa Metode SQL Ini Sangat Aman?</p>
-                            <p class="leading-relaxed">Metode ini mengabaikan kolom `id` (sehingga Supabase otomatis menghasilkan UUID acak sistem yang valid), memastikan entitas induk dibuat terlebih dahulu demi menghindari error Foreign Key, serta menjamin relasi grup mesin terpenuhi sempurna.</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200/60">
+                        <div onclick="pilihSkenario(14)" id="scenCard-14" class="bg-white p-3.5 rounded-lg border-2 border-blue-500 shadow-sm cursor-pointer hover:border-blue-500 transition-all">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-md">TIPE 14</span>
+                                <i id="scenCheck-14" class="fa-solid fa-circle-check text-blue-500"></i>
+                            </div>
+                            <h3 class="text-xs font-bold text-slate-800 mb-1">🔴 Sinyal Offline (Putus Koneksi)</h3>
+                            <p class="text-[11px] text-slate-400 leading-normal">Simulasi pemadaman listrik total atau putus pemancar modem internet pada mesin.</p>
                         </div>
+
+                        <div onclick="pilihSkenario(12)" id="scenCard-12" class="bg-white p-3.5 rounded-lg border-2 border-transparent shadow-sm cursor-pointer hover:border-blue-400 transition-all">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-md">TIPE 12</span>
+                                <i id="scenCheck-12" class="fa-solid fa-circle text-slate-200"></i>
+                            </div>
+                            <h3 class="text-xs font-bold text-slate-800 mb-1">⚠️ Kendala Air / TDS Melonjak</h3>
+                            <p class="text-[11px] text-slate-400 leading-normal">Simulasi kondisi air baku habis total atau kualitas kejernihan TDS melonjak drastis tembus > 50 PPM.</p>
+                        </div>
+
+                        <div onclick="pilihSkenario(13)" id="scenCard-13" class="bg-white p-3.5 rounded-lg border-2 border-transparent shadow-sm cursor-pointer hover:border-blue-400 transition-all">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded-md">TIPE 13</span>
+                                <i id="scenCheck-13" class="fa-solid fa-circle text-slate-200"></i>
+                            </div>
+                            <h3 class="text-xs font-bold text-slate-800 mb-1">🔧 Degradasi Keausan Filter &ge; 90%</h3>
+                            <p class="text-[11px] text-slate-400 leading-normal">Memicu aturan logika di n8n untuk mendeteksi batas masa aktif saringan karbon mekanis yang kritis.</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="block text-xs font-semibold text-slate-600">JSON Payload Konten (Dikirim ke n8n dalam Objek body.record)</label>
+                            <span class="text-[10px] bg-slate-100 text-slate-500 font-mono px-2 py-0.5 rounded">Skema Fisik Supabase</span>
+                        </div>
+                        <pre id="jsonPreview" class="p-4 bg-slate-900 text-emerald-400 rounded-xl text-xs font-mono overflow-x-auto shadow-inner border border-slate-800 max-h-64 leading-relaxed"></pre>
+                    </div>
+
+                    <div class="pt-2">
+                        <button onclick="tembakAlarmN8n()" class="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold py-3 rounded-lg shadow-md transition-all flex items-center justify-center gap-2 text-sm tracking-wide">
+                            <i class="fa-solid fa-rocket animate-bounce"></i> TEMBAKKAN ALARM SEKARANG KE n8n WORKFLOW
+                        </button>
                     </div>
                 </div>
             </div>
+        </div>
 
+        <div id="tab-sql" class="tab-content hidden transition-all duration-200">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200/80 max-w-4xl mx-auto">
+                <div class="flex justify-between items-center mb-3 pb-3 border-b border-slate-100">
+                    <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-code text-slate-700"></i> Generator SQL Raw (Guardrail Penyamaan Struktur Database)
+                    </h2>
+                    <button onclick="salinSQL()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all">
+                        <i class="fa-solid fa-copy"></i> Salin Semua Teks
+                    </button>
+                </div>
+                <p class="text-xs text-slate-500 mb-4 leading-normal">Sintaks SQL di bawah ini dibuat otomatis untuk mengamankan data jika Anda ingin memasukkan data mesin lewat SQL Editor Supabase secara langsung dengan relasi UUID otomatis.</p>
+                <div class="relative">
+                    <pre id="outputSQL" class="bg-slate-900 text-slate-200 p-4 rounded-xl text-xs font-mono shadow-inner border border-slate-800 overflow-x-auto leading-relaxed max-h-96"></pre>
+                </div>
+            </div>
         </div>
     </main>
 
-    <!-- FOOTER -->
-    <footer class="bg-slate-100 border-t border-slate-200 py-6 text-center text-xs text-slate-500 mt-12">
-        <p>&copy; 2026 Mizuone Smart Monitoring. Dikembangkan khusus untuk pengelolaan teknisi mandiri.</p>
-    </footer>
-
-    <!-- CUSTOM TOAST NOTIFICATION CONTAINER -->
-    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 space-y-3 max-w-sm w-full"></div>
-
-    <!-- MAIN JAVASCRIPT LOGIC -->
     <script>
+        // GLOBAL VARIABLES
         let supabaseClient = null;
-        let activeTab = 'teknisi';
-        let tipeTerpilih = 14;
-        let semuaMesin = []; // Menyimpan data mesin hasil fetch dari Supabase
+        let skenarioAktif = 14;
 
-        // Safe Logo Fallback Handler
-        function handleLogoError(img) {
-            img.onerror = null; 
-            img.parentNode.innerHTML = '<div class="text-blue-600 font-bold text-lg tracking-wider">MIZUONE</div>';
-        }
+        // SIMULATOR TEMPLATE ALARM (100% Cocok Jalur body.record Supabase Fisik)
+        const skenarioTemplates = {
+            14: {
+                body: {
+                    record: {
+                        data_type: 14,
+                        device_no: "9999901",
+                        status: "OFFLINE",
+                        sensor_status: "NORMAL",
+                        water_status: "NORMAL",
+                        tds_clean_water: 12,
+                        filter_carbon_wear: 45,
+                        filter_sediment_wear: 30,
+                        created_at: new Date().toISOString()
+                    }
+                }
+            },
+            12: {
+                body: {
+                    record: {
+                        data_type: 12,
+                        device_no: "9999901",
+                        status: "ONLINE",
+                        sensor_status: "KENDALA_ALAT",
+                        water_status: "HABIS",
+                        tds_clean_water: 78,
+                        filter_carbon_wear: 50,
+                        filter_sediment_wear: 32,
+                        created_at: new Date().toISOString()
+                    }
+                }
+            },
+            13: {
+                body: {
+                    record: {
+                        data_type: 13,
+                        device_no: "9999901",
+                        status: "ONLINE",
+                        sensor_status: "NORMAL",
+                        water_status: "NORMAL",
+                        tds_clean_water: 14,
+                        filter_carbon_wear: 94,
+                        filter_sediment_wear: 60,
+                        created_at: new Date().toISOString()
+                    }
+                }
+            }
+        };
 
-        // 1. Tab Switching System
+        // 1. Navigation Controller Tab
         function gantiTab(tabId) {
-            activeTab = tabId;
-            const tabs = ['teknisi', 'mesin', 'simulator', 'sql'];
-            tabs.forEach(t => {
-                document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('hidden');
-                document.getElementById('btnTab' + t.charAt(0).toUpperCase() + t.slice(1)).className = "flex-1 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-50";
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('[id^="tabBtn-"]').forEach(btn => {
+                btn.className = "px-5 py-3 font-medium text-sm border-b-2 transition-all flex items-center gap-2 border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-t-lg";
             });
 
-            document.getElementById('tab' + tabId.charAt(0).toUpperCase() + tabId.slice(1)).classList.remove('hidden');
-            document.getElementById('btnTab' + tabId.charAt(0).toUpperCase() + tabId.slice(1)).className = "flex-1 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 bg-blue-50 text-blue-600";
+            const activeColor = tabId === 'mesin' ? 'border-indigo-600 text-indigo-600' : (tabId === 'simulator' ? 'border-amber-500 text-amber-600' : (tabId === 'sql' ? 'border-slate-700 text-slate-800' : 'border-blue-600 text-blue-600'));
+            document.getElementById(`tabBtn-${tabId}`).className = `px-5 py-3 font-medium text-sm border-b-2 transition-all flex items-center gap-2 bg-white rounded-t-lg shadow-sm ${activeColor}`;
+            
+            if(tabId === 'simulator') {
+                perbaruiPreviewJSON();
+            }
         }
 
-        // 2. Custom Toast System
+        // 2. Toast Notification Trigger
         function tunjukkanNotifikasi(tipe, judul, pesan) {
-            const toastContainer = document.getElementById('toastContainer');
+            const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
+            toast.className = `p-4 rounded-xl shadow-lg border text-sm flex items-start gap-3 bg-white transition-all transform translate-y-2 opacity-0 duration-300 pointer-events-auto`;
             
-            const bgClass = tipe === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-rose-50 border-rose-200 text-rose-900';
-            const iconClass = tipe === 'success' ? 'fa-solid fa-circle-check text-emerald-500' : 'fa-solid fa-circle-exclamation text-rose-500';
-
-            toast.className = `p-4 rounded-xl border ${bgClass} shadow-lg transition-all transform translate-y-2 flex gap-3 items-start animate-bounce`;
+            const infoWarna = tipe === 'success' ? 'border-emerald-200 text-emerald-800 bg-emerald-50' : 'border-rose-200 text-rose-800 bg-rose-50';
+            const icon = tipe === 'success' ? 'fa-solid fa-circle-check text-emerald-500' : 'fa-solid fa-circle-xmark text-rose-500';
+            
+            toast.className += ` ${tipe === 'success' ? 'border-emerald-200' : 'border-rose-200'}`;
             toast.innerHTML = `
-                <i class="${iconClass} text-lg mt-0.5"></i>
-                <div class="flex-1">
-                    <p class="font-bold text-xs">${judul}</p>
-                    <p class="text-[11px] leading-relaxed mt-0.5">${pesan}</p>
+                <div class="${infoWarna} p-1.5 rounded-lg shrink-0"><i class="${icon} text-base"></i></div>
+                <div class="grow">
+                    <h4 class="font-bold text-slate-900 text-xs">${judul}</h4>
+                    <p class="text-slate-600 text-[11px] mt-0.5 leading-normal">${pesan}</p>
                 </div>
-                <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
             `;
-            
-            toastContainer.appendChild(toast);
-            setTimeout(() => { if(toast) toast.remove(); }, 10000);
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
+            setTimeout(() => {
+                toast.classList.add('translate-y-[-10px]', 'opacity-0');
+                setTimeout(() => { toast.remove(); }, 300);
+            }, 4000);
         }
 
-        // Interactive Chat ID Guide Help Alert
-        function bukaPetunjukID() {
-            tunjukkanNotifikasi('success', 'Petunjuk Chat ID', 'Cari bot bernama @userinfobot di aplikasi Telegram Anda, klik Start/Mulai, dan bot tersebut akan langsung menampilkan Chat ID pribadi Anda secara gratis.');
-        }
-
-        // Copy Asset Path Helper Function
-        function salinPathAset(el) {
-            const pathText = el.textContent.trim();
-            const tempInput = document.createElement('textarea');
-            tempInput.value = pathText;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempInput);
-            tunjukkanNotifikasi('success', 'Jalur Disalin!', 'Path folder penyimpanan aset lokal berhasil disalin ke papan klip komputer Anda.');
-        }
-
-        // 3. Supabase Client Connection
-        async function hubungkanSupabase() {
+        // 3. Supabase Initial Connection Handler
+        function hubungkanSupabase() {
             const url = document.getElementById('supabaseUrl').value.trim();
             const key = document.getElementById('supabaseKey').value.trim();
 
             if (!key) {
-                tunjukkanNotifikasi('error', 'Koneksi Gagal', 'Harap masukkan Anon API Key Supabase Anda.');
+                tunjukkanNotifikasi('error', 'Kunci Anon Kosong', 'Silakan tempelkan Anon Key Supabase Anda untuk membuka koneksi.');
                 return;
             }
 
             try {
                 supabaseClient = supabase.createClient(url, key);
                 
-                // Uji coba ambil grup mesin untuk verifikasi koneksi
-                const { data, error } = await supabaseClient
-                    .from('machine_groups')
-                    .select('id, name')
-                    .limit(20);
-
-                if (error) throw error;
-
-                const statusBox = document.getElementById('connectionStatus');
-                statusBox.className = "flex items-center gap-2 bg-emerald-800/50 px-4 py-2 rounded-lg text-sm border border-blue-500/30";
-                statusBox.innerHTML = `
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span class="text-xs font-medium">Terhubung ke Supabase</span>
-                `;
-
-                // Simpan kredensial ke localStorage agar tidak capek mengetik ulang
-                localStorage.setItem('mizuone_sb_url', url);
-                localStorage.setItem('mizuone_sb_key', key);
-
-                tunjukkanNotifikasi('success', 'Koneksi Berhasil!', 'Berhasil terhubung ke database Supabase.');
-                
-                // Update dropdown group mesin
-                populasiDropdownGrup(data);
-                
-                // Muat semua mesin terdaftar untuk simulator
-                muatMesinUntukSimulator();
-
-            } catch (err) {
-                console.error(err);
-                
-                if (err.message && (err.message.includes("secret API key") || err.message.includes("Forbidden"))) {
-                    tunjukkanNotifikasi('error', 'Koneksi Ditolak (Kunci Rahasia)', 'Anda memasukkan Service Role / Secret Key. Supabase melarang keras penggunaan kunci rahasia ini di browser demi keamanan data. Silakan gunakan Anon Key (Public) yang aman.');
-                } else {
-                    tunjukkanNotifikasi('error', 'Koneksi Gagal', 'Gagal menghubungi database: ' + err.message);
-                }
+                // Ambil data untuk validasi koneksi kunci
+                supabaseClient.from('machine_groups').select('id, name').limit(1)
+                    .then(({ data, error }) => {
+                        if (error) throw error;
+                        
+                        // Sukses Terhubung
+                        localStorage.setItem('mizuone_sb_url', url);
+                        localStorage.setItem('mizuone_sb_key', key);
+                        
+                        const banner = document.getElementById('connectionStatusBanner');
+                        banner.className = "mb-6 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-2.5 text-sm shadow-sm transition-all";
+                        banner.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-500 text-base"></i><span><strong>Status Terkoneksi Fisik:</strong> Sukses terhubung ke database Supabase Mizuone secara live. Dropdown siap disinkronkan.</span>`;
+                        
+                        tunjukkanNotifikasi('success', 'Koneksi Berhasil!', 'Berhasil melakukan otentikasi kunci enkripsi Supabase.');
+                        
+                        // Tarik Data Relasional
+                        muatDataGrup();
+                        muatDaftarTeknisi();
+                        muatDaftarMesin();
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        tunjukkanNotifikasi('error', 'Otentikasi Gagal', 'Kunci Anon Key salah atau tidak memiliki otoritas bypass row-level-policy.');
+                    });
+            } catch (e) {
+                tunjukkanNotifikasi('error', 'Inisialisasi Error', e.message);
             }
         }
 
-        // 4. Load Groups dynamically
-        async function muatUlangGrup() {
-            if (!supabaseClient) {
-                tunjukkanNotifikasi('error', 'Belum Terhubung', 'Silakan hubungkan Supabase terlebih dahulu di sidebar.');
-                return;
-            }
-            try {
-                const { data, error } = await supabaseClient.from('machine_groups').select('id, name');
-                if (error) throw error;
-                populasiDropdownGrup(data);
-                tunjukkanNotifikasi('success', 'Berhasil Sinkron', 'Daftar grup mesin berhasil diperbarui.');
-            } catch (err) {
-                tunjukkanNotifikasi('error', 'Gagal Memuat Grup', err.message);
-            }
+        // 4. Load Machine Groups Data From Database
+        function muatDataGrup() {
+            if (!supabaseClient) return;
+            supabaseClient.from('machine_groups').select('id, name')
+                .then(({ data, error }) => {
+                    populasiDropdownGrup(data);
+                })
+                .catch(err => {
+                    console.error(err);
+                    populasiDropdownGrup(null);
+                });
         }
 
+        // 5. Populate Dropdown to Only Show "Grup Utama"
         function populasiDropdownGrup(grupData) {
             const selectEl = document.getElementById('machGroupId');
             const selectTechEl = document.getElementById('techGroupId');
             selectEl.innerHTML = '';
-            selectTechEl.innerHTML = '<option value="">-- Tanpa Grup (Umum) --</option>';
+            selectTechEl.innerHTML = ''; 
 
-            if (!grupData || grupData.length === 0) {
-                selectEl.innerHTML = '<option value="buat_grup">+ Buat Grup Utama Baru Otomatis +</option>';
-                return;
-            }
-
-            grupData.forEach(g => {
-                const opt = document.createElement('option');
-                opt.value = g.id;
-                opt.textContent = g.name;
-                selectEl.appendChild(opt.cloneNode(true));
-                selectTechEl.appendChild(opt);
-            });
-        }
-
-        // Muat daftar mesin riil ke dropdown simulator
-        async function muatMesinUntukSimulator() {
-            if (!supabaseClient) return;
-            try {
-                const { data, error } = await supabaseClient
-                    .from('machine_assignments')
-                    .select('device_no, machine_name, location, machine_group_id');
+            // JIKA DI DATABASE SUDAH ADA DATA GRUP ASLI DARI SUPABASE
+            if (grupData && grupData.length > 0) {
+                grupData.forEach(g => {
+                    const opt = document.createElement('option');
+                    opt.value = g.id;
+                    opt.textContent = g.name;
+                    selectEl.appendChild(opt.cloneNode(true));
+                    selectTechEl.appendChild(opt);
+                });
+            } 
+            // JIKA DATABASE KOSONG / BELUM TERHUBUNG, KUNCI HANYA PADA "GRUP UTAMA"
+            else {
+                const optDefault = document.createElement('option');
+                optDefault.value = "buat_grup"; 
+                optDefault.textContent = "Grup Utama";
                 
-                if (error) throw error;
-
-                if (data && data.length > 0) {
-                    semuaMesin = data;
-                    const selectSim = document.getElementById('simTargetMachine');
-                    selectSim.innerHTML = '';
-                    
-                    data.forEach(m => {
-                        const opt = document.createElement('option');
-                        opt.value = m.device_no;
-                        opt.textContent = `${m.device_no} - ${m.machine_name} (${m.location})`;
-                        selectSim.appendChild(opt);
-                    });
-                    sinkronSkenario();
-                }
-            } catch(e) {
-                console.warn("Gagal menarik mesin untuk simulator:", e.message);
+                selectEl.appendChild(optDefault.cloneNode(true));
+                selectTechEl.appendChild(optDefault);
             }
         }
 
-        // 5. Submit Technician Directly to Supabase
-        async function submitTeknisi(e) {
+        // 6. Fetch Technicians List
+        function muatDaftarTeknisi() {
+            if (!supabaseClient) return;
+            supabaseClient.from('technicians').select('name, telegram_user_id, telegram_chat_id, machine_group_id, is_active')
+                .then(({ data, error }) => {
+                    if (error) throw error;
+                    const tbody = document.getElementById('tabelTeknisiBody');
+                    if(!data || data.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 italic bg-slate-50/30">Belum ada teknisi terdaftar di tabel database.</td></tr>`;
+                        return;
+                    }
+                    tbody.innerHTML = data.map(t => `
+                        <tr class="hover:bg-slate-50/80 transition-colors">
+                            <td class="p-3 font-semibold text-slate-900">${t.name}</td>
+                            <td class="p-3 font-mono text-xs">${t.telegram_user_id}</td>
+                            <td class="p-3 font-mono text-xs text-slate-500">${t.telegram_chat_id}</td>
+                            <td class="p-3 text-xs text-slate-400 font-mono">${t.machine_group_id || '-'}</td>
+                            <td class="p-3 text-center">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${t.is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}">
+                                    ${t.is_active ? 'AKTIF JAPRI' : 'OFF'}
+                                </span>
+                            </td>
+                        </tr>
+                    `).join('');
+                })
+                .catch(err => {
+                    console.error(err);
+                });
+        }
+
+        // 7. Push / Insert New Technician
+        async function simpanTeknisi(e) {
             e.preventDefault();
             if (!supabaseClient) {
-                tunjukkanNotifikasi('error', 'Tidak Ada Koneksi', 'Gagal menyimpan langsung. Silakan hubungkan Supabase menggunakan "Anon Key" terlebih dahulu, atau gunakan tab "Generator SQL".');
+                tunjukkanNotifikasi('error', 'Akses Ditolak', 'Silakan hubungkan Supabase Public Anon Key terlebih dahulu.');
                 return;
             }
 
             const name = document.getElementById('techName').value.trim();
-            const telegram_chat_id = parseInt(document.getElementById('techChatId').value.trim());
-            const telegram_user_id = parseInt(document.getElementById('techUserId').value.trim());
-            const machine_group_id = document.getElementById('techGroupId').value || null;
-            const is_active = document.getElementById('techActive').checked;
+            const userId = parseInt(document.getElementById('techUserId').value);
+            const chatId = parseInt(document.getElementById('techChatId').value);
+            let groupId = document.getElementById('techGroupId').value;
 
-            const submitBtn = document.getElementById('submitTechBtn');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Menyimpan...';
-
-            const payload = { telegram_chat_id, telegram_user_id, name, is_active };
-            if (machine_group_id) {
-                payload.machine_group_id = machine_group_id;
+            // Guardrail jika dropdown terkunci pada text default penanda
+            if (groupId === "buat_grup") {
+                // Buat grup otomatis di database jika belum ada grup nyata
+                const { data: groupBaru, error: eGrp } = await supabaseClient.from('machine_groups').insert([{ name: 'Grup Utama', description: 'Grup Kerja Utama Monitoring Lapangan' }]).select('id').single();
+                if (eGrp) {
+                    tunjukkanNotifikasi('error', 'Gagal Buat Grup', eGrp.message);
+                    return;
+                }
+                groupId = groupBaru.id;
+                muatDataGrup();
             }
 
-            try {
-                const { error } = await supabaseClient
-                    .from('technicians')
-                    .upsert(payload, { onConflict: 'telegram_user_id' });
-
-                if (error) throw error;
-
-                tunjukkanNotifikasi('success', 'Teknisi Tersimpan!', `Teknisi ${name} berhasil didaftarkan di database.`);
-                document.getElementById('formTeknisi').reset();
-            } catch (err) {
-                tunjukkanNotifikasi('error', 'Penyimpanan Gagal', err.message);
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Simpan ke Supabase';
-            }
+            supabaseClient.from('technicians').insert([
+                { name: name, telegram_user_id: userId, telegram_chat_id: chatId, machine_group_id: groupId, is_active: true }
+            ]).then(({ error }) => {
+                if (error) {
+                    if(error.code === '23505') {
+                        tunjukkanNotifikasi('error', 'Duplikasi Data', 'Telegram User ID ini sudah terdaftar sebelumnya di database.');
+                    } else {
+                        tunjukkanNotifikasi('error', 'Gagal Menyimpan', error.message);
+                    }
+                } else {
+                    tunjukkanNotifikasi('success', 'Teknisi Tersimpan!', `Berhasil mendaftarkan ${name} ke dalam klaster monitoring.`);
+                    document.getElementById('formTeknisi').reset();
+                    muatDaftarTeknisi();
+                }
+            });
         }
 
-        // 6. Submit Machine Directly to Supabase (Optimized with Auto-Parent fallback)
-        async function submitMesin(e) {
+        // 8. Fetch Machine Assignment Mappings
+        function muatDaftarMesin() {
+            if (!supabaseClient) return;
+            supabaseClient.from('machine_assignments').select('device_no, machine_name, location, machine_group_id, is_active')
+                .then(({ data, error }) => {
+                    if (error) throw error;
+                    const tbody = document.getElementById('tabelMesinBody');
+                    if(!data || data.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 italic bg-slate-50/30">Belum ada mesin terdaftar di tabel database.</td></tr>`;
+                        return;
+                    }
+                    tbody.innerHTML = data.map(m => `
+                        <tr class="hover:bg-slate-50/80 transition-colors">
+                            <td class="p-3 font-mono font-bold text-slate-900">${m.device_no}</td>
+                            <td class="p-3 font-medium">${m.machine_name}</td>
+                            <td class="p-3 text-slate-600 flex items-center gap-1"><i class="fa-solid fa-location-dot text-slate-400 text-xs"></i> ${m.location}</td>
+                            <td class="p-3 text-xs text-slate-400 font-mono">${m.machine_group_id || '-'}</td>
+                            <td class="p-3 text-center">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${m.is_active ? 'bg-indigo-100 text-indigo-800' : 'bg-slate-100 text-slate-600'}">
+                                    ${m.is_active ? 'MONITORING' : 'OFF'}
+                                </span>
+                            </td>
+                        </tr>
+                    `).join('');
+                })
+                .catch(err => { console.error(err); });
+        }
+
+        // 9. Push / Insert New Machine Assignment
+        async function simpanMesin(e) {
             e.preventDefault();
             if (!supabaseClient) {
-                tunjukkanNotifikasi('error', 'Tidak Ada Koneksi', 'Gagal menyimpan langsung. Silakan hubungkan Supabase menggunakan "Anon Key" terlebih dahulu, atau gunakan tab "Generator SQL".');
+                tunjukkanNotifikasi('error', 'Akses Ditolak', 'Silakan hubungkan Supabase Public Anon Key terlebih dahulu.');
                 return;
             }
 
-            const device_no = document.getElementById('machNo').value.trim();
-            const machine_name = document.getElementById('machName').value.trim();
-            const location = document.getElementById('machLocation').value.trim();
-            let machine_group_id = document.getElementById('machGroupId').value;
+            const devNo = document.getElementById('machDeviceNo').value.trim();
+            const name = document.getElementById('machName').value.trim();
+            const loc = document.getElementById('machLocation').value.trim();
+            let groupId = document.getElementById('machGroupId').value;
 
-            const submitBtn = document.getElementById('submitMachBtn');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Proses Pendaftaran...';
-
-            try {
-                // Skenario auto-register induk untuk menghindari pelanggaran foreign key constraint
-                try {
-                    await supabaseClient.from('devices').upsert({ device_no: device_no }, { onConflict: 'device_no' });
-                } catch(e) { console.log("Devices fallback bypass"); }
-
-                try {
-                    await supabaseClient.from('machines').upsert({ device_no: device_no }, { onConflict: 'device_no' });
-                } catch(e) { console.log("Machines fallback bypass"); }
-
-                if (machine_group_id === 'buat_grup') {
-                    const { data: grpData, error: grpErr } = await supabaseClient
-                        .from('machine_groups')
-                        .insert({ name: 'Grup Utama' })
-                        .select('id')
-                        .single();
-                    if (grpErr) throw grpErr;
-                    machine_group_id = grpData.id;
+            if (groupId === "buat_grup") {
+                const { data: groupBaru, error: eGrp } = await supabaseClient.from('machine_groups').insert([{ name: 'Grup Utama', description: 'Grup Kerja Utama Monitoring Lapangan' }]).select('id').single();
+                if (eGrp) {
+                    tunjukkanNotifikasi('error', 'Gagal Buat Grup', eGrp.message);
+                    return;
                 }
+                groupId = groupBaru.id;
+                muatDataGrup();
+            }
 
-                const { error } = await supabaseClient
-                    .from('machine_assignments')
-                    .insert({ device_no, machine_name, location, machine_group_id, is_active: true });
-
-                if (error) throw error;
-
-                tunjukkanNotifikasi('success', 'Mesin Berhasil Ditugaskan!', `Mesin ID ${device_no} (${machine_name}) sukses ditugaskan.`);
-                document.getElementById('formMesin').reset();
-                muatUlangGrup();
-                muatMesinUntukSimulator();
-            } catch (err) {
-                console.error(err);
-                if (err.message && err.message.includes('foreign key constraint')) {
-                    tunjukkanNotifikasi('error', 'Foreign Key Constraint Error', `Error: ${err.message}. Gagal karena device_no "${device_no}" harus terdaftar di tabel induk 'devices'/'machines' Anda. Gunakan tab "Generator SQL" untuk mengeksekusi multi-insert aman.`);
+            supabaseClient.from('machine_assignments').insert([
+                { device_no: devNo, machine_name: name, location: loc, machine_group_id: groupId, is_active: true }
+            ]).then(({ error }) => {
+                if (error) {
+                    tunjukkanNotifikasi('error', 'Gagal Menyimpan', error.message);
                 } else {
-                    tunjukkanNotifikasi('error', 'Penyimpanan Gagal', err.message);
+                    tunjukkanNotifikasi('success', 'Mesin Terdaftar!', `Unit ${name} sukses dipetakan di lokasi ${loc}.`);
+                    document.getElementById('formMesin').reset();
+                    muatDaftarMesin();
                 }
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Simpan ke Supabase';
-            }
+            });
         }
 
-        // 7. SQL Generation Logic (Technician)
-        function generateTechSQL() {
-            const name = document.getElementById('techName').value.trim() || 'Nama Teknisi';
-            const chat_id = document.getElementById('techChatId').value.trim() || '123456789';
-            const user_id = document.getElementById('techUserId').value.trim() || '123456789';
-            const machine_group_id = document.getElementById('techGroupId').value;
-            const is_active = document.getElementById('techActive').checked;
-
-            let groupValue = 'NULL';
-            if (machine_group_id) {
-                groupValue = `'${machine_group_id}'`;
-            }
-
-            const sql = `-- Mendaftarkan/Upsert Teknisi Sesuai Indeks Unik telegram_user_id\nINSERT INTO public.technicians (telegram_chat_id, telegram_user_id, name, machine_group_id, is_active)\nVALUES (${chat_id}, ${user_id}, '${name}', ${groupValue}, ${is_active})\nON CONFLICT (telegram_user_id) \nDO UPDATE SET name = EXCLUDED.name, telegram_chat_id = EXCLUDED.telegram_chat_id, machine_group_id = EXCLUDED.machine_group_id, is_active = EXCLUDED.is_active;`;
+        // 10. SIMULATOR LOGIC: Switch Scenario Card
+        function pilihSkenario(typeId) {
+            skenarioAktif = typeId;
             
+            // Perbarui Efek Visual Card Pilihan
+            [14, 12, 13].forEach(id => {
+                const card = document.getElementById(`scenCard-${id}`);
+                const icon = document.getElementById(`scenCheck-${id}`);
+                if(id === typeId) {
+                    card.className = "bg-white p-3.5 rounded-lg border-2 border-blue-500 shadow-sm cursor-pointer hover:border-blue-500 transition-all scale-[1.01]";
+                    icon.className = "fa-solid fa-circle-check text-blue-500";
+                } else {
+                    card.className = "bg-white p-3.5 rounded-lg border-2 border-transparent shadow-sm cursor-pointer hover:border-blue-400 transition-all opacity-70";
+                    icon.className = "fa-solid fa-circle text-slate-200";
+                }
+            });
+
+            perbaruiPreviewJSON();
+        }
+
+        // 11. Render Realtime JSON to Screen Preview
+        function perbaruiPreviewJSON() {
+            // Update timestamp agar dinamis mendekati waktu menembak asli
+            skenarioTemplates[skenarioAktif].body.record.created_at = new Date().toISOString();
+            document.getElementById('jsonPreview').textContent = JSON.stringify(skenarioTemplates[skenarioAktif], null, 2);
+        }
+
+        // 12. Send Simulation Alert Payload via Fetch (POST Method)
+        function tembakAlarmN8n() {
+            const webhookUrl = document.getElementById('n8nWebhookUrl').value.trim();
+            if (!webhookUrl) {
+                tunjukkanNotifikasi('error', 'Target URL Kosong', 'Silakan tempelkan URL Webhook n8n Test / Production Anda terlebih dahulu.');
+                return;
+            }
+
+            const payload = skenarioTemplates[skenarioAktif];
+            perbaruiPreviewJSON(); // Refresh timestamp sebelum menembak
+
+            fetch(webhookUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => {
+                if (res.ok) {
+                    tunjukkanNotifikasi('success', 'Sinyal Sukses Ditembak!', `Payload Skenario Tipe ${skenarioAktif} berhasil terkirim ke aliran otomatisasi n8n.`);
+                } else {
+                    tunjukkanNotifikasi('error', 'Respons Server Error', `n8n menolak payload dengan kode status: ${res.status}`);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                tunjukkanNotifikasi('error', 'Gagal Melakukan Koneksi Tembak', 'Pastikan n8n Anda aktif dan periksa kebijakan blokir CORS di server lokal Anda.');
+            });
+        }
+
+        // 13. SQL Statement Generator Logic
+        function buatSQLMesin() {
+            const devNo = document.getElementById('machDeviceNo').value.trim() || '9999901';
+            const name = document.getElementById('machName').value.trim() || 'Depot Quench Pusat';
+            const loc = document.getElementById('machLocation').value.trim() || 'Blimbing, Malang';
+
+            const sql = `-- MIZUONE RECOVERY GUARDRAIL SCRIPT
+WITH group_baru AS (
+    INSERT INTO public.machine_groups (name, description)
+    VALUES ('Grup Utama', 'Grup Kerja Utama Monitoring Lapangan')
+    ON CONFLICT DO UPDATE SET name = EXCLUDED.name
+    RETURNING id
+)
+INSERT INTO public.machine_assignments (device_no, machine_name, location, machine_group_id, is_active)
+SELECT '${devNo}', '${name}', '${loc}', id, true
+FROM group_baru;`;
+
             document.getElementById('outputSQL').textContent = sql;
             gantiTab('sql');
             tunjukkanNotifikasi('success', 'SQL Berhasil Dibuat!', 'Sintaks SQL Anda siap disalin di tab Generator.');
         }
 
-        // 8. SQL Generation Logic (Machine)
-        function generateMachSQL() {
-            const devNo = document.getElementById('machNo').value.trim() || '86340323';
-            const name = document.getElementById('machName').value.trim() || 'Unggaran';
-            const loc = document.getElementById('machLocation').value.trim() || 'Bali';
-
-            const sql = `-- 1. DAFTARKAN MESIN DI TABEL INDUK TERLEBIH DAHULU (PENTING! Mencegah Error Foreign Key)\n-- Ganti 'devices' di bawah ini dengan nama tabel induk Anda jika berbeda (misal 'machines')\nINSERT INTO public.devices (device_no) \nVALUES ('${devNo}') \nON CONFLICT (device_no) DO NOTHING;\n\n-- 2. DAFTARKAN GRUP & TUGASKAN MESIN BARU SECARA SEKALIGUS\nWITH group_baru AS (\n  INSERT INTO public.machine_groups (name)\n  VALUES ('Grup Utama')\n  ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name\n  RETURNING id\n)\nINSERT INTO public.machine_assignments (device_no, machine_name, location, machine_group_id, is_active)\nSELECT '${devNo}', '${name}', '${loc}', id, true\nFROM group_baru;`;
-
-            document.getElementById('outputSQL').textContent = sql;
-            gantiTab('sql');
-            tunjukkanNotifikasi('success', 'SQL Berhasil Dibuat!', 'Sintaks SQL Anda siap disalin di tab Generator.');
-        }
-
-        // 9. Copy to Clipboard
+        // 14. Copy SQL to Clipboard Buffer
         function salinSQL() {
             const codeText = document.getElementById('outputSQL').textContent;
+            
             const tempInput = document.createElement('textarea');
             tempInput.value = codeText;
             document.body.appendChild(tempInput);
@@ -679,154 +683,7 @@
             tunjukkanNotifikasi('success', 'Berhasil Disalin!', 'Sintaks SQL berhasil disalin ke papan klip.');
         }
 
-        // ==========================================
-        // SIMULATOR & ALARM LOGIC (FITUR TERBARU - DIPERBAIKI UNTUK N8N WEBHOOK)
-        // ==========================================
-        
-        function pilihSkenario(tipe) {
-            tipeTerpilih = tipe;
-            
-            // Set styles visual untuk radio card yang terpilih
-            const skenCards = [14, 12, 13];
-            skenCards.forEach(s => {
-                const el = document.getElementById('skenCard' + s);
-                if (s === tipe) {
-                    el.className = "cursor-pointer border-2 border-indigo-500 bg-indigo-50/50 p-4 rounded-xl flex items-start gap-3 transition-all shadow-sm";
-                    el.querySelector('input').checked = true;
-                } else {
-                    el.className = "cursor-pointer border border-slate-200 hover:border-slate-300 bg-white p-4 rounded-xl flex items-start gap-3 transition-all";
-                }
-            });
-
-            sinkronSkenario();
-        }
-
-        function sinkronSkenario() {
-            const selectSim = document.getElementById('simTargetMachine');
-            const targetDevNo = selectSim.value;
-            
-            // Cari data mesin di list memory, gunakan dummy jika tidak ditemukan
-            const dataMesinTerpilih = semuaMesin.find(m => m.device_no === targetDevNo) || {
-                device_no: "9999901",
-                machine_name: "Kantor Pusat",
-                location: "Malang",
-                machine_group_id: "777cda6a-7422-4dd1-a36a-5a682ff0d070"
-            };
-
-            // Membuat payload gabungan (Flat di root + Terstruktur di dalam 'record')
-            // Agar kompatibel dengan semua jenis pemrosesan n8n Anda!
-            let payloadObj = {
-                // Parameter Level Root (Untuk fleksibilitas dan fallback)
-                event_time: new Date().toISOString(),
-                device_no: dataMesinTerpilih.device_no,
-                machine_name: dataMesinTerpilih.machine_name,
-                location: dataMesinTerpilih.location,
-                machine_group_id: dataMesinTerpilih.machine_group_id,
-                message_type: tipeTerpilih,
-                pilar_category: "",
-
-                // STRUKTUR UTAMA SEPERTI WEBHOOK SUPABASE NYATA (Wajib untuk n8n Switch Node)
-                record: {
-                    id: Math.floor(Math.random() * 1000000),
-                    device_no: dataMesinTerpilih.device_no,
-                    data_type: tipeTerpilih, // n8n Anda memproses "data_type" di Switch
-                    created_at: new Date().toISOString()
-                }
-            };
-
-            // Tambahkan parameter spesifik tipe data berdasarkan skenario terpilih
-            if (tipeTerpilih === 14) {
-                payloadObj.status = "OFFLINE";
-                payloadObj.offline_duration_minutes = 15;
-                payloadObj.pilar_category = "Konektivitas";
-
-                payloadObj.record.status = "OFFLINE";
-                payloadObj.record.offline_duration_minutes = 15;
-            } else if (tipeTerpilih === 12) {
-                payloadObj.status = "ONLINE";
-                payloadObj.sensor_status = "KENDALA_ALAT";
-                payloadObj.water_status = "HABIS";
-                payloadObj.tds_clean_water = 78; // Di atas ambang batas > 50 PPM
-                payloadObj.pilar_category = "Status Alat";
-
-                payloadObj.record.status = "ONLINE";
-                payloadObj.record.sensor_status = "KENDALA_ALAT";
-                payloadObj.record.water_status = "HABIS";
-                payloadObj.record.tds_clean_water = 78;
-            } else if (tipeTerpilih === 13) {
-                payloadObj.status = "ONLINE";
-                payloadObj.filter_carbon_wear = 94; // Batas limit filter >= 90%
-                payloadObj.filter_sediment_wear = 85;
-                payloadObj.pilar_category = "Keausan Filter Mekanis";
-
-                payloadObj.record.status = "ONLINE";
-                payloadObj.record.filter_carbon_wear = 94;
-                payloadObj.record.filter_sediment_wear = 85;
-            }
-
-            document.getElementById('jsonPayloadPreview').textContent = JSON.stringify(payloadObj, null, 2);
-        }
-
-        async function kirimSimulasiKeN8n() {
-            const url = document.getElementById('n8nWebhookUrl').value.trim();
-            const logTerminal = document.getElementById('simLogTerminal');
-
-            if (!url) {
-                tunjukkanNotifikasi('error', 'Webhook Kosong', 'Harap masukkan Webhook Test URL n8n Anda terlebih dahulu.');
-                return;
-            }
-
-            // Simpan URL n8n ke localStorage
-            localStorage.setItem('mizuone_n8n_url', url);
-
-            const payloadText = document.getElementById('jsonPayloadPreview').textContent;
-            
-            // Log loading ke terminal
-            const timestamp = new Date().toLocaleTimeString();
-            logTerminal.innerHTML += `<div class="text-amber-400 mt-2">[${timestamp}] Menghubungi Webhook n8n...</div>`;
-            logTerminal.scrollTop = logTerminal.scrollHeight;
-
-            const btnKirim = document.getElementById('btnKirimSimulasi');
-            btnKirim.disabled = true;
-            btnKirim.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Mengirim...';
-
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: payloadText
-                });
-
-                const responseText = await response.text();
-                const logTime = new Date().toLocaleTimeString();
-
-                if (response.ok) {
-                    logTerminal.innerHTML += `<div class="text-emerald-400 mt-1">[${logTime}] ✔️ PENGIRIMAN SUKSES! (Status: ${response.status})</div>`;
-                    logTerminal.innerHTML += `<div class="text-slate-400 pl-4">Respon: ${responseText || 'No content body (200 OK)'}</div>`;
-                    tunjukkanNotifikasi('success', 'Sinyal Terkirim!', 'Sinyal simulasi berhasil diantarkan dalam format terstruktur database.');
-                } else {
-                    logTerminal.innerHTML += `<div class="text-rose-500 mt-1">[${logTime}] ❌ GAGAL! (Status: ${response.status})</div>`;
-                    logTerminal.innerHTML += `<div class="text-slate-400 pl-4">Pesan: ${responseText}</div>`;
-                    tunjukkanNotifikasi('error', 'n8n Merespon Error', `Webhook menolak dengan kode: ${response.status}`);
-                }
-
-            } catch (err) {
-                const logTime = new Date().toLocaleTimeString();
-                logTerminal.innerHTML += `<div class="text-rose-500 mt-1">[${logTime}] ❌ NETWORK ERROR!</div>`;
-                logTerminal.innerHTML += `<div class="text-slate-400 pl-4">Detail: ${err.message}</div>`;
-                tunjukkanNotifikasi('error', 'Gagal Terhubung', 'Tidak bisa menjangkau server n8n. Periksa koneksi internet Anda.');
-            } finally {
-                btnKirim.disabled = false;
-                btnKirim.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Tembakkan Alarm Ke n8n';
-                logTerminal.scrollTop = logTerminal.scrollHeight;
-            }
-        }
-
-        function bersihkanLogSimulasi() {
-            document.getElementById('simLogTerminal').innerHTML = '<span class="text-slate-500">// Menunggu perintah eksekusi dari Anda...</span>';
-        }
-
-        // Load Cached Credentials on page load
+        // Auto Load Local Cache on page boot up
         window.onload = function() {
             const cachedUrl = localStorage.getItem('mizuone_sb_url');
             const cachedKey = localStorage.getItem('mizuone_sb_key');
@@ -834,14 +691,9 @@
                 document.getElementById('supabaseUrl').value = cachedUrl;
                 document.getElementById('supabaseKey').value = cachedKey;
                 hubungkanSupabase();
+            } else {
+                populasiDropdownGrup(null); // Set default "Grup Utama" dari awal
             }
-
-            const cachedN8n = localStorage.getItem('mizuone_n8n_url');
-            if (cachedN8n) {
-                document.getElementById('n8nWebhookUrl').value = cachedN8n;
-            }
-
-            pilihSkenario(14); // Default loading skenario offline
         };
     </script>
 </body>
