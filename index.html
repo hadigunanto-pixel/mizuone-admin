@@ -23,9 +23,9 @@
 
     <header class="bg-gradient-to-r from-blue-700 to-indigo-800 text-white shadow-md sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
-            <div class="flex items-center space-x-3">
-                <div class="bg-white/10 p-2 rounded-lg backdrop-blur-sm">
-                    <i class="fa-solid fa-droplet text-xl text-cyan-300 animate-pulse"></i>
+            <div class="flex items-center space-x-4">
+                <div class="bg-white px-5 py-2 rounded-xl shadow-inner flex items-center justify-center h-[72px] min-w-[200px] transition-all duration-300">
+                    <img src="Logo MizuOne (1).png" alt="Logo MizuOne" class="max-h-full max-w-full object-contain" onerror="handleLogoError(this)">
                 </div>
                 <div>
                     <h1 class="text-lg font-bold tracking-tight">MIZUONE</h1>
@@ -43,7 +43,7 @@
         </div>
     </header>
 
-    <div id="toastContainer" class="fixed top-20 right-4 z-50 flex flex-col gap-2 max-w-md w-full pointer-events-none"></div>
+    <div id="toastContainer" class="fixed top-24 right-4 z-50 flex flex-col gap-2 max-w-md w-full pointer-events-none"></div>
 
     <main class="max-w-7xl mx-auto px-4 py-6">
         <div id="connectionStatusBanner" class="mb-6 p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 flex items-center gap-2.5 text-sm shadow-sm transition-all">
@@ -86,11 +86,10 @@
                             <input type="number" id="techChatId" required placeholder="Sama dengan User ID untuk chat pribadi" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
                         </div>
                         <div>
-                            <div class="flex justify-between items-center mb-1">
+                            <div class="mb-1">
                                 <label class="block text-xs font-semibold text-slate-600">Pilih Wilayah Kerja / Grup</label>
-                                <button type="button" onclick="triggerTambahGrupManual()" class="text-[10px] text-blue-600 hover:underline font-bold">+ Tambah Grup Baru</button>
                             </div>
-                            <select id="techGroupId" onchange="handleDropdownGrupChange(this)" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-600">
+                            <select id="techGroupId" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-600">
                                 <option value="">-- Hubungkan Supabase Terlebih Dahulu --</option>
                             </select>
                         </div>
@@ -286,13 +285,19 @@
     <script>
         let supabaseClient = null;
         let skenarioAktif = 14;
-        let daftarGrupCache = []; // Menyimpan data grup secara global
+        let daftarGrupCache = [];
 
         const skenarioTemplates = {
             14: { body: { record: { data_type: 14, device_no: "86340323", status: "OFFLINE", sensor_status: "NORMAL", water_status: "NORMAL", tds_clean_water: 12, filter_carbon_wear: 45, filter_sediment_wear: 30, created_at: new Date().toISOString() } } },
             12: { body: { record: { data_type: 12, device_no: "86340323", status: "ONLINE", sensor_status: "KENDALA_ALAT", water_status: "HABIS", tds_clean_water: 78, filter_carbon_wear: 50, filter_sediment_wear: 32, created_at: new Date().toISOString() } } },
             13: { body: { record: { data_type: 13, device_no: "86340323", status: "ONLINE", sensor_status: "NORMAL", water_status: "NORMAL", tds_clean_water: 14, filter_carbon_wear: 94, filter_sediment_wear: 60, created_at: new Date().toISOString() } } }
         };
+
+        // Fallback Logo Error Handler Style
+        function handleLogoError(img) {
+            img.onerror = null; 
+            img.parentNode.innerHTML = '<div class="text-blue-700 font-extrabold text-2xl tracking-widest bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">MIZUONE</div>';
+        }
 
         function gantiTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
@@ -356,24 +361,35 @@
         }
 
         function populasiDropdownGrup(grupData) {
-            const selects = [document.getElementById('techGroupId'), document.getElementById('machGroupId')];
-            selects.forEach(select => {
-                select.innerHTML = '<option value="">-- Pilih Wilayah / Grup Kerja --</option>';
-                if (grupData && grupData.length > 0) {
-                    grupData.forEach(g => {
-                        const opt = document.createElement('option');
-                        opt.value = g.id;
-                        opt.textContent = g.name;
-                        select.appendChild(opt);
-                    });
-                }
-                // Tambahkan opsi pemicu penambahan grup baru secara langsung
-                const optNew = document.createElement('option');
-                optNew.value = "TRIGGER_BUAT_GRUP_BARU";
-                optNew.textContent = "➕ (+ Tambah Wilayah / Grup Baru +)";
-                optNew.className = "text-blue-600 font-bold bg-blue-50";
-                select.appendChild(optNew);
-            });
+            const selectTech = document.getElementById('techGroupId');
+            const selectMach = document.getElementById('machGroupId');
+            
+            // 1. Populasi Dropdown Form Teknisi (Bersih & Tanpa Tombol Tambah Baru)
+            selectTech.innerHTML = '<option value="">-- Pilih Wilayah / Grup Kerja --</option>';
+            if (grupData && grupData.length > 0) {
+                grupData.forEach(g => {
+                    const opt = document.createElement('option');
+                    opt.value = g.id;
+                    opt.textContent = g.name;
+                    selectTech.appendChild(opt);
+                });
+            }
+
+            // 2. Populasi Dropdown Form Mesin (Dilengkapi Pemicu Tambah Baru Eksklusif Admin)
+            selectMach.innerHTML = '<option value="">-- Pilih Wilayah / Machine Group --</option>';
+            if (grupData && grupData.length > 0) {
+                grupData.forEach(g => {
+                    const opt = document.createElement('option');
+                    opt.value = g.id;
+                    opt.textContent = g.name;
+                    selectMach.appendChild(opt);
+                });
+            }
+            const optNew = document.createElement('option');
+            optNew.value = "TRIGGER_BUAT_GRUP_BARU";
+            optNew.textContent = "➕ (+ Tambah Wilayah / Grup Baru +)";
+            optNew.className = "text-blue-600 font-bold bg-blue-50";
+            selectMach.appendChild(optNew);
         }
 
         // Jalur Pemicu Pop-up Tambah Banyak Grup Baru secara Dinamis
@@ -394,10 +410,9 @@
 
                 tunjukkanNotifikasi('success', 'Grup Baru Dibuat!', `Grup "${data.name}" sukses ditambahkan ke Supabase.`);
                 
-                // Refresh data cache lokal dan otomatis set dropdown ke grup baru tersebut
                 await muatDataGrup();
                 
-                document.getElementById('techGroupId').value = data.id;
+                // Otomatis arahkan pilihan mesin ke grup baru
                 document.getElementById('machGroupId').value = data.id;
 
             } catch (err) {
@@ -407,7 +422,7 @@
 
         function handleDropdownGrupChange(selectElement) {
             if (selectElement.value === "TRIGGER_BUAT_GRUP_BARU") {
-                selectElement.value = ""; // Reset seleksi sementara
+                selectElement.value = ""; 
                 triggerTambahGrupManual();
             }
         }
@@ -423,7 +438,7 @@
                             <td class="p-3 font-semibold text-slate-900">${t.name}</td>
                             <td class="p-3 font-mono text-xs">${t.telegram_user_id}</td>
                             <td class="p-3 font-mono text-xs text-slate-500">${t.telegram_chat_id}</td>
-                            <td class="p-3 text-xs font-mono">${t.machine_group_id || '-'}</td>
+                            <td class="p-3 text-xs font-mono text-slate-400">${t.machine_group_id || '-'}</td>
                             <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${t.is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}">${t.is_active ? 'AKTIF' : 'OFF'}</span></td>
                         </tr>
                     `).join('');
@@ -438,7 +453,7 @@
             const chatId = parseInt(document.getElementById('techChatId').value);
             const groupId = document.getElementById('techGroupId').value;
 
-            if (!groupId || groupId === "TRIGGER_BUAT_GRUP_BARU") { tunjukkanNotifikasi('error', 'Form Belum Lengkap', 'Silakan pilih atau buat Wilayah Kerja terlebih dahulu.'); return; }
+            if (!groupId) { tunjukkanNotifikasi('error', 'Form Belum Lengkap', 'Silakan pilih Wilayah Kerja terlebih dahulu.'); return; }
 
             supabaseClient.from('technicians').insert([{ name, telegram_user_id: userId, telegram_chat_id: chatId, machine_group_id: groupId, is_active: true }])
                 .then(({ error }) => {
@@ -460,7 +475,7 @@
                             <td class="p-3 font-mono font-bold text-slate-900">${m.device_no}</td>
                             <td class="p-3 font-medium">${m.machine_name}</td>
                             <td class="p-3 text-slate-600">${m.location}</td>
-                            <td class="p-3 text-xs font-mono">${m.machine_group_id || '-'}</td>
+                            <td class="p-3 text-xs font-mono text-slate-400">${m.machine_group_id || '-'}</td>
                             <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${m.is_active ? 'bg-indigo-100 text-indigo-800' : 'bg-slate-100 text-slate-600'}">MONITOR</span></td>
                         </tr>
                     `).join('');
@@ -475,9 +490,8 @@
             const loc = document.getElementById('machLocation').value.trim();
             const groupId = document.getElementById('machGroupId').value;
 
-            if (!groupId || groupId === "TRIGGER_BUAT_GRUP_BARU") { tunjukkanNotifikasi('error', 'Form Belum Lengkap', 'Silakan pilih atau buat Machine Group terlebih dahulu.'); return; }
+            if (!groupId || groupId === "TRIGGER_BUAT_GRUP_BARU") { tunjukkanNotifikasi('error', 'Form Belum Lengkap', 'Silakan pilih Machine Group terlebih dahulu.'); return; }
 
-            // Trigger registrasi ke parent table devices terlebih dahulu untuk jaminan 100% lolos Foreign Key Constraint
             supabaseClient.from('devices').upsert({ device_no: devNo }, { onConflict: 'device_no' })
                 .then(() => {
                     return supabaseClient.from('machine_assignments').insert([{ device_no: devNo, machine_name: name, location: loc, machine_group_id: groupId, is_active: true }]);
