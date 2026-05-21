@@ -680,7 +680,7 @@
         }
 
         // ==========================================
-        // SIMULATOR & ALARM LOGIC (FITUR TERBARU)
+        // SIMULATOR & ALARM LOGIC (FITUR TERBARU - DIPERBAIKI UNTUK N8N WEBHOOK)
         // ==========================================
         
         function pilihSkenario(tipe) {
@@ -713,31 +713,55 @@
                 machine_group_id: "777cda6a-7422-4dd1-a36a-5a682ff0d070"
             };
 
+            // Membuat payload gabungan (Flat di root + Terstruktur di dalam 'record')
+            // Agar kompatibel dengan semua jenis pemrosesan n8n Anda!
             let payloadObj = {
+                // Parameter Level Root (Untuk fleksibilitas dan fallback)
                 event_time: new Date().toISOString(),
                 device_no: dataMesinTerpilih.device_no,
                 machine_name: dataMesinTerpilih.machine_name,
                 location: dataMesinTerpilih.location,
                 machine_group_id: dataMesinTerpilih.machine_group_id,
-                message_type: tipeTerpilih
+                message_type: tipeTerpilih,
+                pilar_category: "",
+
+                // STRUKTUR UTAMA SEPERTI WEBHOOK SUPABASE NYATA (Wajib untuk n8n Switch Node)
+                record: {
+                    id: Math.floor(Math.random() * 1000000),
+                    device_no: dataMesinTerpilih.device_no,
+                    data_type: tipeTerpilih, // n8n Anda memproses "data_type" di Switch
+                    created_at: new Date().toISOString()
+                }
             };
 
-            // Tambahkan parameter spesifik tipe data berdasarkan README
+            // Tambahkan parameter spesifik tipe data berdasarkan skenario terpilih
             if (tipeTerpilih === 14) {
                 payloadObj.status = "OFFLINE";
                 payloadObj.offline_duration_minutes = 15;
                 payloadObj.pilar_category = "Konektivitas";
+
+                payloadObj.record.status = "OFFLINE";
+                payloadObj.record.offline_duration_minutes = 15;
             } else if (tipeTerpilih === 12) {
                 payloadObj.status = "ONLINE";
                 payloadObj.sensor_status = "KENDALA_ALAT";
                 payloadObj.water_status = "HABIS";
-                payloadObj.tds_clean_water = 78; // Melampaui batas normal > 50 PPM
+                payloadObj.tds_clean_water = 78; // Di atas ambang batas > 50 PPM
                 payloadObj.pilar_category = "Status Alat";
+
+                payloadObj.record.status = "ONLINE";
+                payloadObj.record.sensor_status = "KENDALA_ALAT";
+                payloadObj.record.water_status = "HABIS";
+                payloadObj.record.tds_clean_water = 78;
             } else if (tipeTerpilih === 13) {
                 payloadObj.status = "ONLINE";
-                payloadObj.filter_carbon_wear = 94; // Saringan filter >= 90%
+                payloadObj.filter_carbon_wear = 94; // Batas limit filter >= 90%
                 payloadObj.filter_sediment_wear = 85;
                 payloadObj.pilar_category = "Keausan Filter Mekanis";
+
+                payloadObj.record.status = "ONLINE";
+                payloadObj.record.filter_carbon_wear = 94;
+                payloadObj.record.filter_sediment_wear = 85;
             }
 
             document.getElementById('jsonPayloadPreview').textContent = JSON.stringify(payloadObj, null, 2);
@@ -757,7 +781,7 @@
 
             const payloadText = document.getElementById('jsonPayloadPreview').textContent;
             
-            // Log loading indicator ke terminal
+            // Log loading ke terminal
             const timestamp = new Date().toLocaleTimeString();
             logTerminal.innerHTML += `<div class="text-amber-400 mt-2">[${timestamp}] Menghubungi Webhook n8n...</div>`;
             logTerminal.scrollTop = logTerminal.scrollHeight;
@@ -779,7 +803,7 @@
                 if (response.ok) {
                     logTerminal.innerHTML += `<div class="text-emerald-400 mt-1">[${logTime}] ✔️ PENGIRIMAN SUKSES! (Status: ${response.status})</div>`;
                     logTerminal.innerHTML += `<div class="text-slate-400 pl-4">Respon: ${responseText || 'No content body (200 OK)'}</div>`;
-                    tunjukkanNotifikasi('success', 'Sinyal Terkirim!', 'Data pengujian sukses diantarkan ke n8n. Silakan periksa dashboard n8n dan bot Telegram Anda!');
+                    tunjukkanNotifikasi('success', 'Sinyal Terkirim!', 'Sinyal simulasi berhasil diantarkan dalam format terstruktur database.');
                 } else {
                     logTerminal.innerHTML += `<div class="text-rose-500 mt-1">[${logTime}] ❌ GAGAL! (Status: ${response.status})</div>`;
                     logTerminal.innerHTML += `<div class="text-slate-400 pl-4">Pesan: ${responseText}</div>`;
@@ -790,7 +814,7 @@
                 const logTime = new Date().toLocaleTimeString();
                 logTerminal.innerHTML += `<div class="text-rose-500 mt-1">[${logTime}] ❌ NETWORK ERROR!</div>`;
                 logTerminal.innerHTML += `<div class="text-slate-400 pl-4">Detail: ${err.message}</div>`;
-                tunjukkanNotifikasi('error', 'Gagal Terhubung', 'Tidak bisa menjangkau server n8n. Periksa koneksi internet atau aktifkan CORS di n8n.');
+                tunjukkanNotifikasi('error', 'Gagal Terhubung', 'Tidak bisa menjangkau server n8n. Periksa koneksi internet Anda.');
             } finally {
                 btnKirim.disabled = false;
                 btnKirim.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Tembakkan Alarm Ke n8n';
