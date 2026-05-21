@@ -30,7 +30,7 @@
         <div class="max-w-7xl mx-auto px-4 py-5 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-4">
                 <!-- LOGO RESMI MIZUONE (Ukuran diperbesar menjadi h-[68px] dan w-[180px] agar lebih jelas dan proporsional) -->
-                <div class="bg-white px-4 py-2 rounded-xl shadow-inner flex items-center justify-center h-[100px] w-[265px] transition-all duration-300">
+                <div class="bg-white px-4 py-2 rounded-xl shadow-inner flex items-center justify-center h-[68px] w-[180px] transition-all duration-300">
                     <img src="Logo MizuOne (1).png" alt="Logo MizuOne" class="max-h-full max-w-full object-contain" onerror="handleLogoError(this)">
                 </div>
                 <div>
@@ -169,11 +169,11 @@
                                 <span>Telegram Chat ID *</span>
                                 <span class="text-slate-400 normal-case font-normal text-[10px] cursor-help" onclick="bukaPetunjukID()"><i class="fa-solid fa-circle-question text-blue-500"></i> Cara Cari ID</span>
                             </label>
-                            <input type="number" id="techChatId" required placeholder="Contoh: 123456789" class="w-full text-sm px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <input type="number" id="techChatId" required placeholder="Contoh: 5948330044" class="w-full text-sm px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Telegram User ID *</label>
-                            <input type="number" id="techUserId" required placeholder="Contoh: 123456789" class="w-full text-sm px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <input type="number" id="techUserId" required placeholder="Contoh: 5948330044" class="w-full text-sm px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                     </div>
 
@@ -459,9 +459,10 @@
             }
 
             try {
+                // Sesuai dengan skema fisik tabel Anda, constraint unik dipasang pada telegram_user_id!
                 const { error } = await supabaseClient
                     .from('technicians')
-                    .upsert(payload, { onConflict: 'telegram_chat_id' });
+                    .upsert(payload, { onConflict: 'telegram_user_id' });
 
                 if (error) throw error;
 
@@ -522,6 +523,7 @@
         }
 
         // 7. SQL Generation Logic (Technician)
+        // Disesuaikan agar menggunakan ON CONFLICT (telegram_user_id) sesuai skema tabel asli database Anda
         function generateTechSQL() {
             const name = document.getElementById('techName').value.trim() || 'Nama Teknisi';
             const chat_id = document.getElementById('techChatId').value.trim() || '123456789';
@@ -534,7 +536,7 @@
                 groupValue = `'${machine_group_id}'`;
             }
 
-            const sql = `-- Mendaftarkan Teknisi Secara Manual Sesuai Struktur Kolom Nyata\nINSERT INTO public.technicians (telegram_chat_id, telegram_user_id, name, machine_group_id, is_active)\nVALUES (${chat_id}, ${user_id}, '${name}', ${groupValue}, ${is_active})\nON CONFLICT (telegram_chat_id) \nDO UPDATE SET name = EXCLUDED.name, telegram_user_id = EXCLUDED.telegram_user_id, machine_group_id = EXCLUDED.machine_group_id, is_active = EXCLUDED.is_active;`;
+            const sql = `-- Mendaftarkan/Upsert Teknisi Sesuai Indeks Unik telegram_user_id\nINSERT INTO public.technicians (telegram_chat_id, telegram_user_id, name, machine_group_id, is_active)\nVALUES (${chat_id}, ${user_id}, '${name}', ${groupValue}, ${is_active})\nON CONFLICT (telegram_user_id) \nDO UPDATE SET name = EXCLUDED.name, telegram_chat_id = EXCLUDED.telegram_chat_id, machine_group_id = EXCLUDED.machine_group_id, is_active = EXCLUDED.is_active;`;
             
             document.getElementById('outputSQL').textContent = sql;
             gantiTab('sql');
