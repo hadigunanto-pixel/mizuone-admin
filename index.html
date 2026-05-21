@@ -35,7 +35,7 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-bold tracking-tight">Mizuone Smart Monitoring</h1>
-                    <p class="text-xs text-blue-100">Portal Administrasi & Registrations Manual Data Master</p>
+                    <p class="text-xs text-blue-100">Portal Administrasi & Simulator Alarm Pengujian n8n</p>
                 </div>
             </div>
             <!-- API Status Badge -->
@@ -95,30 +95,14 @@
                 </p>
             </div>
 
-            <!-- KEY FINDER GUIDE -->
-            <div id="guideBox" class="bg-amber-50 border border-amber-100 rounded-2xl p-5 space-y-3 hidden">
-                <h4 class="font-bold text-amber-900 flex items-center gap-2 text-xs uppercase tracking-wider">
-                    <i class="fa-solid fa-circle-question"></i>
-                    Cara Mencari Public Anon Key
-                </h4>
-                <ol class="text-xs text-amber-800 space-y-2 list-decimal list-inside leading-relaxed">
-                    <li>Buka dashboard proyek <strong>Supabase</strong> Anda.</li>
-                    <li>Di menu sebelah kiri bawah, klik menu <strong>Project Settings</strong> (ikon roda gigi).</li>
-                    <li>Pilih menu <strong>API</strong> di bawah kategori Settings.</li>
-                    <li>Cari kolom <strong>`anon` `public`</strong> di bawah panel Project API keys.</li>
-                    <li>Salin nilainya, lalu tempelkan ke kolom kunci di atas!</li>
-                </ol>
-                <p class="text-[10px] text-amber-700 italic">Hindari menyalin dari kolom `service_role` `secret` karena browser mendeteksi dan memblokirnya otomatis.</p>
-            </div>
-
             <!-- MANUAL SQL INFO -->
             <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-6">
                 <h4 class="font-bold text-indigo-900 flex items-center gap-2 mb-2 text-sm">
                     <i class="fa-solid fa-lightbulb"></i>
-                    Mode Tanpa API
+                    Uji Aliran n8n
                 </h4>
                 <p class="text-xs text-indigo-700 leading-relaxed">
-                    Jika tidak ingin memasukkan API Key, Anda bisa tetap menggunakan form ini di tab <strong>"Generator SQL"</strong> untuk menghasilkan perintah SQL bebas eror yang bisa langsung dijalankan di Supabase SQL Editor.
+                    Setelah berhasil mendaftarkan mesin dan teknisi, Anda bisa beralih ke tab <strong>"Simulator Alarm"</strong> untuk menembakkan sinyal pengujian langsung ke skema n8n Anda.
                 </p>
             </div>
         </div>
@@ -127,16 +111,20 @@
         <div class="lg:col-span-3 space-y-6">
             
             <!-- TABS NAVIGATION -->
-            <div class="bg-white p-2 rounded-xl shadow-sm border border-slate-100 flex gap-2">
-                <button onclick="gantiTab('teknisi')" id="btnTabTeknisi" class="flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 bg-blue-50 text-blue-600">
+            <div class="bg-white p-2 rounded-xl shadow-sm border border-slate-100 flex gap-2 overflow-x-auto">
+                <button onclick="gantiTab('teknisi')" id="btnTabTeknisi" class="flex-1 min-w-[120px] py-2.5 px-3 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 bg-blue-50 text-blue-600">
                     <i class="fa-solid fa-user-gear"></i>
                     Registrasi Teknisi
                 </button>
-                <button onclick="gantiTab('mesin')" id="btnTabMesin" class="flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-50">
+                <button onclick="gantiTab('mesin')" id="btnTabMesin" class="flex-1 min-w-[120px] py-2.5 px-3 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-50">
                     <i class="fa-solid fa-screwdriver-wrench"></i>
                     Registrasi Mesin
                 </button>
-                <button onclick="gantiTab('sql')" id="btnTabSql" class="flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-50">
+                <button onclick="gantiTab('simulator')" id="btnTabSimulator" class="flex-1 min-w-[120px] py-2.5 px-3 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-50">
+                    <i class="fa-solid fa-circle-play text-rose-500"></i>
+                    Simulator Alarm (Uji n8n)
+                </button>
+                <button onclick="gantiTab('sql')" id="btnTabSql" class="flex-1 min-w-[120px] py-2.5 px-3 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-50">
                     <i class="fa-solid fa-code"></i>
                     Generator SQL
                 </button>
@@ -241,6 +229,91 @@
                 </form>
             </div>
 
+            <!-- TAB CONTENT: SIMULATOR ALARM & TESTING PANEL -->
+            <div id="tabSimulator" class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-6 hidden">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-radiation text-rose-500 animate-pulse"></i>
+                        Simulator Sinyal Alarm Lapangan
+                    </h2>
+                    <p class="text-xs text-slate-500">Kirim payload simulasi kerusakan mesin dari portal ini langsung menuju webhook n8n Anda untuk pengujian end-to-end tanpa menunggu kerusakan nyata.</p>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Target Webhook URL n8n Anda *</label>
+                        <input type="text" id="n8nWebhookUrl" placeholder="https://n8n.domain.com/webhook-test/mizuone-alert" class="w-full text-xs font-mono px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 bg-white">
+                        <p class="text-[9px] text-slate-400 mt-1">Gunakan tautan <strong>test-webhook</strong> dari n8n agar Anda bisa memantau aliran datanya secara interaktif.</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Pilih Mesin Percobaan *</label>
+                        <select id="simTargetMachine" onchange="sinkronSkenario()" class="w-full text-xs px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 bg-white">
+                            <option value="9999901">Mesin Dummy Default (9999901 - Kantor)</option>
+                        </select>
+                        <p class="text-[9px] text-slate-400 mt-1">Daftar ini ditarik dinamis dari tabel <strong>machine_assignments</strong> Anda.</p>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <label class="block text-xs font-semibold text-slate-700 uppercase">Pilih Skenario Kasus Alarm</label>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <!-- Skenario 1 -->
+                        <label onclick="pilihSkenario(14)" class="cursor-pointer border border-slate-200 hover:border-blue-300 bg-white p-4 rounded-xl flex items-start gap-3 transition-all" id="skenCard14">
+                            <input type="radio" name="skenAlarm" value="14" checked class="mt-1 text-blue-600 focus:ring-blue-500">
+                            <div>
+                                <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Tipe 14</span>
+                                <h4 class="font-bold text-xs mt-1.5 text-slate-900">Koneksi Mesin Terputus</h4>
+                                <p class="text-[10px] text-slate-500 leading-normal mt-1">Mengirimkan sinyal kehilangan heartbeat (Status: Offline) ke teknisi.</p>
+                            </div>
+                        </label>
+                        <!-- Skenario 2 -->
+                        <label onclick="pilihSkenario(12)" class="cursor-pointer border border-slate-200 hover:border-amber-300 bg-white p-4 rounded-xl flex items-start gap-3 transition-all" id="skenCard12">
+                            <input type="radio" name="skenAlarm" value="12" class="mt-1 text-amber-600 focus:ring-amber-500">
+                            <div>
+                                <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Tipe 12</span>
+                                <h4 class="font-bold text-xs mt-1.5 text-slate-900">TDS Melampaui Batas</h4>
+                                <p class="text-[10px] text-slate-500 leading-normal mt-1">Mengirim kendala alat dengan nilai TDS 78 PPM (Batas normal &lt; 50 PPM).</p>
+                            </div>
+                        </label>
+                        <!-- Skenario 3 -->
+                        <label onclick="pilihSkenario(13)" class="cursor-pointer border border-slate-200 hover:border-rose-300 bg-white p-4 rounded-xl flex items-start gap-3 transition-all" id="skenCard13">
+                            <input type="radio" name="skenAlarm" value="13" class="mt-1 text-rose-600 focus:ring-rose-500">
+                            <div>
+                                <span class="bg-rose-100 text-rose-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Tipe 13</span>
+                                <h4 class="font-bold text-xs mt-1.5 text-slate-900">Keausan Filter &gt;= 90%</h4>
+                                <p class="text-[10px] text-slate-500 leading-normal mt-1">Mengirim status degradasi fisik filter karbon aktif (Pemakaian saat ini: 94%).</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 pt-2">
+                    <!-- JSON Payload View -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Payload JSON Yang Akan Dikirim</label>
+                        <div class="bg-slate-900 rounded-xl p-4 font-mono text-[11px] text-emerald-400 overflow-x-auto h-[180px]">
+                            <pre id="jsonPayloadPreview"></pre>
+                        </div>
+                    </div>
+                    <!-- Response Terminal Log -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Log Hasil Respon n8n Webhook</label>
+                        <div id="simLogTerminal" class="bg-slate-900 rounded-xl p-4 font-mono text-[11px] text-slate-300 overflow-y-auto h-[180px] border border-slate-800">
+                            <span class="text-slate-500">// Menunggu perintah eksekusi dari Anda...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 flex justify-end gap-3">
+                    <button onclick="bersihkanLogSimulasi()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs py-2 px-4 rounded-lg transition-colors">
+                        <i class="fa-solid fa-eraser"></i> Bersihkan Log
+                    </button>
+                    <button onclick="kirimSimulasiKeN8n()" id="btnKirimSimulasi" class="bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs py-2.5 px-6 rounded-lg transition-colors flex items-center gap-2 shadow-md">
+                        <i class="fa-solid fa-paper-plane"></i> Tembakkan Alarm Ke n8n
+                    </button>
+                </div>
+            </div>
+
             <!-- TAB CONTENT: GENERATOR SQL -->
             <div id="tabSql" class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-6 hidden">
                 <div>
@@ -282,6 +355,8 @@
     <script>
         let supabaseClient = null;
         let activeTab = 'teknisi';
+        let tipeTerpilih = 14;
+        let semuaMesin = []; // Menyimpan data mesin hasil fetch dari Supabase
 
         // Safe Logo Fallback Handler
         function handleLogoError(img) {
@@ -292,17 +367,17 @@
         // 1. Tab Switching System
         function gantiTab(tabId) {
             activeTab = tabId;
-            const tabs = ['teknisi', 'mesin', 'sql'];
+            const tabs = ['teknisi', 'mesin', 'simulator', 'sql'];
             tabs.forEach(t => {
                 document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('hidden');
-                document.getElementById('btnTab' + t.charAt(0).toUpperCase() + t.slice(1)).className = "flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-50";
+                document.getElementById('btnTab' + t.charAt(0).toUpperCase() + t.slice(1)).className = "flex-1 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-50";
             });
 
             document.getElementById('tab' + tabId.charAt(0).toUpperCase() + tabId.slice(1)).classList.remove('hidden');
-            document.getElementById('btnTab' + tabId.charAt(0).toUpperCase() + tabId.slice(1)).className = "flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 bg-blue-50 text-blue-600";
+            document.getElementById('btnTab' + tabId.charAt(0).toUpperCase() + tabId.slice(1)).className = "flex-1 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 bg-blue-50 text-blue-600";
         }
 
-        // 2. Custom Toast System (Replacement for browser alert)
+        // 2. Custom Toast System
         function tunjukkanNotifikasi(tipe, judul, pesan) {
             const toastContainer = document.getElementById('toastContainer');
             const toast = document.createElement('div');
@@ -323,7 +398,7 @@
             `;
             
             toastContainer.appendChild(toast);
-            setTimeout(() => { if(toast) toast.remove(); }, 12000); // Diperlama agar user sempat membaca pesan instruksi error
+            setTimeout(() => { if(toast) toast.remove(); }, 10000);
         }
 
         // Interactive Chat ID Guide Help Alert
@@ -354,7 +429,6 @@
             }
 
             try {
-                // Instansiasi klien baru
                 supabaseClient = supabase.createClient(url, key);
                 
                 // Uji coba ambil grup mesin untuk verifikasi koneksi
@@ -365,16 +439,12 @@
 
                 if (error) throw error;
 
-                // Update UI Status jika sukses
                 const statusBox = document.getElementById('connectionStatus');
                 statusBox.className = "flex items-center gap-2 bg-emerald-800/50 px-4 py-2 rounded-lg text-sm border border-blue-500/30";
                 statusBox.innerHTML = `
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
                     <span class="text-xs font-medium">Terhubung ke Supabase</span>
                 `;
-
-                // Sembunyikan panduan jika koneksi sukses
-                document.getElementById('guideBox').classList.add('hidden');
 
                 // Simpan kredensial ke localStorage agar tidak capek mengetik ulang
                 localStorage.setItem('mizuone_sb_url', url);
@@ -384,14 +454,15 @@
                 
                 // Update dropdown group mesin
                 populasiDropdownGrup(data);
+                
+                // Muat semua mesin terdaftar untuk simulator
+                muatMesinUntukSimulator();
 
             } catch (err) {
                 console.error(err);
                 
-                // Cek error spesifik kunci rahasia rawan keamanan browser
                 if (err.message && (err.message.includes("secret API key") || err.message.includes("Forbidden"))) {
                     tunjukkanNotifikasi('error', 'Koneksi Ditolak (Kunci Rahasia)', 'Anda memasukkan Service Role / Secret Key. Supabase melarang keras penggunaan kunci rahasia ini di browser demi keamanan data. Silakan gunakan Anon Key (Public) yang aman.');
-                    document.getElementById('guideBox').classList.remove('hidden');
                 } else {
                     tunjukkanNotifikasi('error', 'Koneksi Gagal', 'Gagal menghubungi database: ' + err.message);
                 }
@@ -434,6 +505,34 @@
             });
         }
 
+        // Muat daftar mesin riil ke dropdown simulator
+        async function muatMesinUntukSimulator() {
+            if (!supabaseClient) return;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('machine_assignments')
+                    .select('device_no, machine_name, location, machine_group_id');
+                
+                if (error) throw error;
+
+                if (data && data.length > 0) {
+                    semuaMesin = data;
+                    const selectSim = document.getElementById('simTargetMachine');
+                    selectSim.innerHTML = '';
+                    
+                    data.forEach(m => {
+                        const opt = document.createElement('option');
+                        opt.value = m.device_no;
+                        opt.textContent = `${m.device_no} - ${m.machine_name} (${m.location})`;
+                        selectSim.appendChild(opt);
+                    });
+                    sinkronSkenario();
+                }
+            } catch(e) {
+                console.warn("Gagal menarik mesin untuk simulator:", e.message);
+            }
+        }
+
         // 5. Submit Technician Directly to Supabase
         async function submitTeknisi(e) {
             e.preventDefault();
@@ -458,7 +557,6 @@
             }
 
             try {
-                // Sesuai dengan skema fisik tabel Anda, constraint unik dipasang pada telegram_user_id!
                 const { error } = await supabaseClient
                     .from('technicians')
                     .upsert(payload, { onConflict: 'telegram_user_id' });
@@ -475,7 +573,7 @@
             }
         }
 
-        // 6. Submit Machine Directly to Supabase (Optimized for Foreign Key Auto-Registration)
+        // 6. Submit Machine Directly to Supabase (Optimized with Auto-Parent fallback)
         async function submitMesin(e) {
             e.preventDefault();
             if (!supabaseClient) {
@@ -493,22 +591,15 @@
             submitBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Proses Pendaftaran...';
 
             try {
-                // LANGKAH OPTIMASI AUTO-REGISTRASI PARENT:
-                // Kita coba daftarkan nomor mesin ini ke tabel induk potensial (devices atau machines) jika ada,
-                // untuk menghindari "violates foreign key constraint".
+                // Skenario auto-register induk untuk menghindari pelanggaran foreign key constraint
                 try {
                     await supabaseClient.from('devices').upsert({ device_no: device_no }, { onConflict: 'device_no' });
-                } catch(e) {
-                    console.log("Percobaan auto-insert 'devices' diabaikan / tidak didukung.");
-                }
+                } catch(e) { console.log("Devices fallback bypass"); }
 
                 try {
                     await supabaseClient.from('machines').upsert({ device_no: device_no }, { onConflict: 'device_no' });
-                } catch(e) {
-                    console.log("Percobaan auto-insert 'machines' diabaikan / tidak didukung.");
-                }
+                } catch(e) { console.log("Machines fallback bypass"); }
 
-                // Skenario jika tabel grup mesin masih kosong, buat grup default dulu
                 if (machine_group_id === 'buat_grup') {
                     const { data: grpData, error: grpErr } = await supabaseClient
                         .from('machine_groups')
@@ -519,7 +610,6 @@
                     machine_group_id = grpData.id;
                 }
 
-                // Masukkan data ke machine_assignments
                 const { error } = await supabaseClient
                     .from('machine_assignments')
                     .insert({ device_no, machine_name, location, machine_group_id, is_active: true });
@@ -529,10 +619,11 @@
                 tunjukkanNotifikasi('success', 'Mesin Berhasil Ditugaskan!', `Mesin ID ${device_no} (${machine_name}) sukses ditugaskan.`);
                 document.getElementById('formMesin').reset();
                 muatUlangGrup();
+                muatMesinUntukSimulator();
             } catch (err) {
                 console.error(err);
                 if (err.message && err.message.includes('foreign key constraint')) {
-                    tunjukkanNotifikasi('error', 'Foreign Key Constraint Error', `Error: ${err.message}. Gagal menyimpan karena device_no "${device_no}" harus terdaftar terlebih dahulu di tabel induk Anda (seperti tabel 'devices' atau 'machines'). Silakan gunakan menu "Generator SQL" untuk menyisipkan data ke tabel induk Anda secara aman.`);
+                    tunjukkanNotifikasi('error', 'Foreign Key Constraint Error', `Error: ${err.message}. Gagal karena device_no "${device_no}" harus terdaftar di tabel induk 'devices'/'machines' Anda. Gunakan tab "Generator SQL" untuk mengeksekusi multi-insert aman.`);
                 } else {
                     tunjukkanNotifikasi('error', 'Penyimpanan Gagal', err.message);
                 }
@@ -562,7 +653,7 @@
             tunjukkanNotifikasi('success', 'SQL Berhasil Dibuat!', 'Sintaks SQL Anda siap disalin di tab Generator.');
         }
 
-        // 8. SQL Generation Logic (Machine - Anti FK Constraint Error)
+        // 8. SQL Generation Logic (Machine)
         function generateMachSQL() {
             const devNo = document.getElementById('machNo').value.trim() || '86340323';
             const name = document.getElementById('machName').value.trim() || 'Unggaran';
@@ -578,7 +669,6 @@
         // 9. Copy to Clipboard
         function salinSQL() {
             const codeText = document.getElementById('outputSQL').textContent;
-            
             const tempInput = document.createElement('textarea');
             tempInput.value = codeText;
             document.body.appendChild(tempInput);
@@ -587,6 +677,129 @@
             document.body.removeChild(tempInput);
 
             tunjukkanNotifikasi('success', 'Berhasil Disalin!', 'Sintaks SQL berhasil disalin ke papan klip.');
+        }
+
+        // ==========================================
+        // SIMULATOR & ALARM LOGIC (FITUR TERBARU)
+        // ==========================================
+        
+        function pilihSkenario(tipe) {
+            tipeTerpilih = tipe;
+            
+            // Set styles visual untuk radio card yang terpilih
+            const skenCards = [14, 12, 13];
+            skenCards.forEach(s => {
+                const el = document.getElementById('skenCard' + s);
+                if (s === tipe) {
+                    el.className = "cursor-pointer border-2 border-indigo-500 bg-indigo-50/50 p-4 rounded-xl flex items-start gap-3 transition-all shadow-sm";
+                    el.querySelector('input').checked = true;
+                } else {
+                    el.className = "cursor-pointer border border-slate-200 hover:border-slate-300 bg-white p-4 rounded-xl flex items-start gap-3 transition-all";
+                }
+            });
+
+            sinkronSkenario();
+        }
+
+        function sinkronSkenario() {
+            const selectSim = document.getElementById('simTargetMachine');
+            const targetDevNo = selectSim.value;
+            
+            // Cari data mesin di list memory, gunakan dummy jika tidak ditemukan
+            const dataMesinTerpilih = semuaMesin.find(m => m.device_no === targetDevNo) || {
+                device_no: "9999901",
+                machine_name: "Kantor Pusat",
+                location: "Malang",
+                machine_group_id: "777cda6a-7422-4dd1-a36a-5a682ff0d070"
+            };
+
+            let payloadObj = {
+                event_time: new Date().toISOString(),
+                device_no: dataMesinTerpilih.device_no,
+                machine_name: dataMesinTerpilih.machine_name,
+                location: dataMesinTerpilih.location,
+                machine_group_id: dataMesinTerpilih.machine_group_id,
+                message_type: tipeTerpilih
+            };
+
+            // Tambahkan parameter spesifik tipe data berdasarkan README
+            if (tipeTerpilih === 14) {
+                payloadObj.status = "OFFLINE";
+                payloadObj.offline_duration_minutes = 15;
+                payloadObj.pilar_category = "Konektivitas";
+            } else if (tipeTerpilih === 12) {
+                payloadObj.status = "ONLINE";
+                payloadObj.sensor_status = "KENDALA_ALAT";
+                payloadObj.water_status = "HABIS";
+                payloadObj.tds_clean_water = 78; // Melampaui batas normal > 50 PPM
+                payloadObj.pilar_category = "Status Alat";
+            } else if (tipeTerpilih === 13) {
+                payloadObj.status = "ONLINE";
+                payloadObj.filter_carbon_wear = 94; // Saringan filter >= 90%
+                payloadObj.filter_sediment_wear = 85;
+                payloadObj.pilar_category = "Keausan Filter Mekanis";
+            }
+
+            document.getElementById('jsonPayloadPreview').textContent = JSON.stringify(payloadObj, null, 2);
+        }
+
+        async function kirimSimulasiKeN8n() {
+            const url = document.getElementById('n8nWebhookUrl').value.trim();
+            const logTerminal = document.getElementById('simLogTerminal');
+
+            if (!url) {
+                tunjukkanNotifikasi('error', 'Webhook Kosong', 'Harap masukkan Webhook Test URL n8n Anda terlebih dahulu.');
+                return;
+            }
+
+            // Simpan URL n8n ke localStorage
+            localStorage.setItem('mizuone_n8n_url', url);
+
+            const payloadText = document.getElementById('jsonPayloadPreview').textContent;
+            
+            // Log loading indicator ke terminal
+            const timestamp = new Date().toLocaleTimeString();
+            logTerminal.innerHTML += `<div class="text-amber-400 mt-2">[${timestamp}] Menghubungi Webhook n8n...</div>`;
+            logTerminal.scrollTop = logTerminal.scrollHeight;
+
+            const btnKirim = document.getElementById('btnKirimSimulasi');
+            btnKirim.disabled = true;
+            btnKirim.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Mengirim...';
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: payloadText
+                });
+
+                const responseText = await response.text();
+                const logTime = new Date().toLocaleTimeString();
+
+                if (response.ok) {
+                    logTerminal.innerHTML += `<div class="text-emerald-400 mt-1">[${logTime}] ✔️ PENGIRIMAN SUKSES! (Status: ${response.status})</div>`;
+                    logTerminal.innerHTML += `<div class="text-slate-400 pl-4">Respon: ${responseText || 'No content body (200 OK)'}</div>`;
+                    tunjukkanNotifikasi('success', 'Sinyal Terkirim!', 'Data pengujian sukses diantarkan ke n8n. Silakan periksa dashboard n8n dan bot Telegram Anda!');
+                } else {
+                    logTerminal.innerHTML += `<div class="text-rose-500 mt-1">[${logTime}] ❌ GAGAL! (Status: ${response.status})</div>`;
+                    logTerminal.innerHTML += `<div class="text-slate-400 pl-4">Pesan: ${responseText}</div>`;
+                    tunjukkanNotifikasi('error', 'n8n Merespon Error', `Webhook menolak dengan kode: ${response.status}`);
+                }
+
+            } catch (err) {
+                const logTime = new Date().toLocaleTimeString();
+                logTerminal.innerHTML += `<div class="text-rose-500 mt-1">[${logTime}] ❌ NETWORK ERROR!</div>`;
+                logTerminal.innerHTML += `<div class="text-slate-400 pl-4">Detail: ${err.message}</div>`;
+                tunjukkanNotifikasi('error', 'Gagal Terhubung', 'Tidak bisa menjangkau server n8n. Periksa koneksi internet atau aktifkan CORS di n8n.');
+            } finally {
+                btnKirim.disabled = false;
+                btnKirim.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Tembakkan Alarm Ke n8n';
+                logTerminal.scrollTop = logTerminal.scrollHeight;
+            }
+        }
+
+        function bersihkanLogSimulasi() {
+            document.getElementById('simLogTerminal').innerHTML = '<span class="text-slate-500">// Menunggu perintah eksekusi dari Anda...</span>';
         }
 
         // Load Cached Credentials on page load
@@ -598,6 +811,13 @@
                 document.getElementById('supabaseKey').value = cachedKey;
                 hubungkanSupabase();
             }
+
+            const cachedN8n = localStorage.getItem('mizuone_n8n_url');
+            if (cachedN8n) {
+                document.getElementById('n8nWebhookUrl').value = cachedN8n;
+            }
+
+            pilihSkenario(14); // Default loading skenario offline
         };
     </script>
 </body>
