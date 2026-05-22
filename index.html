@@ -297,10 +297,10 @@
         let daftarGrupCache = [];
 
         const skenarioTemplates = {
-            14: { body: { record: { data_type: 14, device_no: "86340323", status: "OFFLINE", sensor_status: "NORMAL", water_status: "NORMAL", tds_clean_water: 12, filter_carbon_wear: 45, filter_sediment_wear: 30, created_at: new Date().toISOString() } } },
-            12: { body: { record: { data_type: 12, device_no: "86340323", status: "ONLINE", sensor_status: "KENDALA_ALAT", water_status: "HABIS", tds_clean_water: 78, filter_carbon_wear: 50, filter_sediment_wear: 32, created_at: new Date().toISOString() } } },
-            13: { body: { record: { data_type: 13, device_no: "86340323", status: "ONLINE", sensor_status: "NORMAL", water_status: "NORMAL", tds_clean_water: 14, filter_carbon_wear: 94, filter_sediment_wear: 60, created_at: new Date().toISOString() } } },
-            2:  { body: { record: { data_type: 2, device_no: "86340323", cash: 50, price: 19, volume: 1800, outlet: 1, water_time: Date.now(), created_at: new Date().toISOString() } } }
+            14: { record: { data_type: 14, device_no: "86340323", status: "OFFLINE", sensor_status: "NORMAL", water_status: "NORMAL", tds_clean_water: 12, filter_carbon_wear: 45, filter_sediment_wear: 30, created_at: new Date().toISOString() } },
+            12: { record: { data_type: 12, device_no: "86340323", status: "ONLINE", sensor_status: "KENDALA_ALAT", water_status: "HABIS", tds_clean_water: 78, filter_carbon_wear: 50, filter_sediment_wear: 32, created_at: new Date().toISOString() } },
+            13: { record: { data_type: 13, device_no: "86340323", status: "ONLINE", sensor_status: "NORMAL", water_status: "NORMAL", tds_clean_water: 14, filter_carbon_wear: 94, filter_sediment_wear: 60, created_at: new Date().toISOString() } },
+            2:  { record: { data_type: 2, device_no: "86340323", cash: 50, price: 19, volume: 1800, outlet: 1, water_time: Date.now(), created_at: new Date().toISOString() } }
         };
 
         function handleLogoError(img) {
@@ -526,9 +526,9 @@
         }
 
         function perbaruiPreviewJSON() {
-            skenarioTemplates[skenarioAktif].body.record.created_at = new Date().toISOString();
+            skenarioTemplates[skenarioAktif].record.created_at = new Date().toISOString();
             if (skenarioAktif === 2) {
-                skenarioTemplates[2].body.record.water_time = Date.now();
+                skenarioTemplates[2].record.water_time = Date.now();
             }
             document.getElementById('jsonPreview').textContent = JSON.stringify(skenarioTemplates[skenarioAktif], null, 2);
         }
