@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mizuone Admin & Registration Portal</title>
-    
+
     <link class="js-favicon" rel="icon" type="image/jpeg" href="favicon.jpg?v=3">
     <link rel="shortcut icon" type="image/jpeg" href="favicon.jpg?v=3">
     <link rel="apple-touch-icon" href="favicon.jpg?v=3">
@@ -32,7 +32,7 @@
                     <p class="text-xs text-blue-200">Smart Monitoring & Automation Portal</p>
                 </div>
             </div>
-            
+
             <div class="flex items-center space-x-2 bg-black/10 p-1.5 rounded-lg border border-white/10 text-xs grow md:grow-0 max-w-xl">
                 <input type="password" id="supabaseKey" placeholder="Masukkan Supabase Public Anon Key Anda..." class="bg-slate-900/50 text-white placeholder-slate-400 px-3 py-1.5 rounded border border-slate-700/50 focus:outline-none focus:border-cyan-400 grow min-w-[220px]">
                 <input type="hidden" id="supabaseUrl" value="https://ryhoeaeymskrjsvisofx.supabase.co">
@@ -199,7 +199,7 @@
         </div>
 
         <div id="tab-simulator" class="tab-content hidden transition-all duration-200">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200/80 max-w-4xl mx-auto">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200/80 max-w-5xl mx-auto">
                 <div class="flex items-center space-x-3 mb-4 pb-3 border-b border-slate-100">
                     <div class="bg-amber-100 text-amber-700 p-2 rounded-lg">
                         <i class="fa-solid fa-tower-broadcast text-lg animate-pulse"></i>
@@ -216,7 +216,7 @@
                         <input type="text" id="n8nWebhookUrl" placeholder="Masukkan URL Webhook n8n Anda..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-mono text-xs text-slate-600">
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200/60">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200/60">
                         <div onclick="pilihSkenario(14)" id="scenCard-14" class="bg-white p-3.5 rounded-lg border-2 border-blue-500 shadow-sm cursor-pointer hover:border-blue-500 transition-all">
                             <div class="flex justify-between items-start mb-2">
                                 <span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-md">TIPE 14</span>
@@ -242,6 +242,15 @@
                             </div>
                             <h3 class="text-xs font-bold text-slate-800 mb-1">🔧 Degradasi Keausan Filter &ge; 90%</h3>
                             <p class="text-[11px] text-slate-400 leading-normal">Memicu aturan logika di n8n untuk mendeteksi batas masa aktif saringan karbon mekanis yang kritis.</p>
+                        </div>
+
+                        <div onclick="pilihSkenario(2)" id="scenCard-2" class="bg-white p-3.5 rounded-lg border-2 border-transparent shadow-sm cursor-pointer hover:border-blue-400 transition-all">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="bg-yellow-100 text-yellow-700 text-[10px] font-bold px-2 py-0.5 rounded-md">TIPE 2</span>
+                                <i id="scenCheck-2" class="fa-solid fa-circle text-slate-200"></i>
+                            </div>
+                            <h3 class="text-xs font-bold text-slate-800 mb-1">💰 Transaksi Koin Masuk</h3>
+                            <p class="text-[11px] text-slate-400 leading-normal">Simulasi koin Rp500 masuk ke mesin. Uji akumulasi coin tracker &amp; notif koin perlu diambil.</p>
                         </div>
                     </div>
 
@@ -290,12 +299,12 @@
         const skenarioTemplates = {
             14: { body: { record: { data_type: 14, device_no: "86340323", status: "OFFLINE", sensor_status: "NORMAL", water_status: "NORMAL", tds_clean_water: 12, filter_carbon_wear: 45, filter_sediment_wear: 30, created_at: new Date().toISOString() } } },
             12: { body: { record: { data_type: 12, device_no: "86340323", status: "ONLINE", sensor_status: "KENDALA_ALAT", water_status: "HABIS", tds_clean_water: 78, filter_carbon_wear: 50, filter_sediment_wear: 32, created_at: new Date().toISOString() } } },
-            13: { body: { record: { data_type: 13, device_no: "86340323", status: "ONLINE", sensor_status: "NORMAL", water_status: "NORMAL", tds_clean_water: 14, filter_carbon_wear: 94, filter_sediment_wear: 60, created_at: new Date().toISOString() } } }
+            13: { body: { record: { data_type: 13, device_no: "86340323", status: "ONLINE", sensor_status: "NORMAL", water_status: "NORMAL", tds_clean_water: 14, filter_carbon_wear: 94, filter_sediment_wear: 60, created_at: new Date().toISOString() } } },
+            2:  { body: { record: { data_type: 2, device_no: "86340323", cash: 50, price: 19, volume: 1800, outlet: 1, water_time: Date.now(), created_at: new Date().toISOString() } } }
         };
 
-        // Fallback Logo Error Handler Style
         function handleLogoError(img) {
-            img.onerror = null; 
+            img.onerror = null;
             img.parentNode.innerHTML = '<div class="text-blue-700 font-extrabold text-2xl tracking-widest bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">MIZUONE</div>';
         }
 
@@ -317,7 +326,7 @@
             const toast = document.createElement('div');
             const infoWarna = tipe === 'success' ? 'border-emerald-200 text-emerald-800 bg-emerald-50' : 'border-rose-200 text-rose-800 bg-rose-50';
             const icon = tipe === 'success' ? 'fa-solid fa-circle-check text-emerald-500' : 'fa-solid fa-circle-xmark text-rose-500';
-            
+
             toast.className = `p-4 rounded-xl shadow-lg border text-sm flex items-start gap-3 bg-white transition-all transform duration-300 pointer-events-auto ${tipe === 'success' ? 'border-emerald-200' : 'border-rose-200'}`;
             toast.innerHTML = `<div class="${infoWarna} p-1.5 rounded-lg shrink-0"><i class="${icon} text-base"></i></div><div class="grow"><h4 class="font-bold text-slate-900 text-xs">${judul}</h4><p class="text-slate-600 text-[11px] mt-0.5 leading-normal">${pesan}</p></div>`;
             container.appendChild(toast);
@@ -337,10 +346,10 @@
                         if (error) throw error;
                         localStorage.setItem('mizuone_sb_url', url);
                         localStorage.setItem('mizuone_sb_key', key);
-                        
+
                         document.getElementById('connectionStatusBanner').className = "mb-6 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-2.5 text-sm shadow-sm";
                         document.getElementById('connectionStatusBanner').innerHTML = `<i class="fa-solid fa-circle-check text-emerald-500 text-base"></i><span><strong>Status Terkoneksi:</strong> Manajemen multi-grup dinamis aktif.</span>`;
-                        
+
                         tunjukkanNotifikasi('success', 'Koneksi Sukses', 'Database terhubung sempurna.');
                         muatDataGrup();
                         muatDaftarTeknisi();
@@ -363,8 +372,7 @@
         function populasiDropdownGrup(grupData) {
             const selectTech = document.getElementById('techGroupId');
             const selectMach = document.getElementById('machGroupId');
-            
-            // 1. Populasi Dropdown Form Teknisi (Bersih & Tanpa Tombol Tambah Baru)
+
             selectTech.innerHTML = '<option value="">-- Pilih Wilayah / Grup Kerja --</option>';
             if (grupData && grupData.length > 0) {
                 grupData.forEach(g => {
@@ -375,7 +383,6 @@
                 });
             }
 
-            // 2. Populasi Dropdown Form Mesin (Dilengkapi Pemicu Tambah Baru Eksklusif Admin)
             selectMach.innerHTML = '<option value="">-- Pilih Wilayah / Machine Group --</option>';
             if (grupData && grupData.length > 0) {
                 grupData.forEach(g => {
@@ -392,10 +399,9 @@
             selectMach.appendChild(optNew);
         }
 
-        // Jalur Pemicu Pop-up Tambah Banyak Grup Baru secara Dinamis
         async function triggerTambahGrupManual() {
             if (!supabaseClient) { tunjukkanNotifikasi('error', 'Akses Ditolak', 'Hubungkan database terlebih dahulu.'); return; }
-            
+
             const namaGrupBaru = prompt("Masukkan Nama Wilayah / Grup Kerja Baru:\n(Contoh: Malang Barat, Surabaya Utara, Bali Selatan)");
             if (!namaGrupBaru || namaGrupBaru.trim() === "") return;
 
@@ -409,10 +415,9 @@
                 if (error) throw error;
 
                 tunjukkanNotifikasi('success', 'Grup Baru Dibuat!', `Grup "${data.name}" sukses ditambahkan ke Supabase.`);
-                
+
                 await muatDataGrup();
-                
-                // Otomatis arahkan pilihan mesin ke grup baru
+
                 document.getElementById('machGroupId').value = data.id;
 
             } catch (err) {
@@ -422,7 +427,7 @@
 
         function handleDropdownGrupChange(selectElement) {
             if (selectElement.value === "TRIGGER_BUAT_GRUP_BARU") {
-                selectElement.value = ""; 
+                selectElement.value = "";
                 triggerTambahGrupManual();
             }
         }
@@ -506,7 +511,7 @@
 
         function pilihSkenario(typeId) {
             skenarioAktif = typeId;
-            [14, 12, 13].forEach(id => {
+            [14, 12, 13, 2].forEach(id => {
                 const card = document.getElementById(`scenCard-${id}`);
                 const icon = document.getElementById(`scenCheck-${id}`);
                 if(id === typeId) {
@@ -522,6 +527,9 @@
 
         function perbaruiPreviewJSON() {
             skenarioTemplates[skenarioAktif].body.record.created_at = new Date().toISOString();
+            if (skenarioAktif === 2) {
+                skenarioTemplates[2].body.record.water_time = Date.now();
+            }
             document.getElementById('jsonPreview').textContent = JSON.stringify(skenarioTemplates[skenarioAktif], null, 2);
         }
 
