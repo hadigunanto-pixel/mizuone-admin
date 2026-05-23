@@ -33,11 +33,17 @@
                 </div>
             </div>
 
-            <div class="flex items-center space-x-2 bg-black/10 p-1.5 rounded-lg border border-white/10 text-xs grow md:grow-0 max-w-xl">
+            <div class="flex flex-wrap items-center gap-2 bg-black/10 p-1.5 rounded-lg border border-white/10 text-xs grow md:grow-0 max-w-4xl">
                 <input type="password" id="supabaseKey" placeholder="Masukkan Supabase Public Anon Key Anda..." class="bg-slate-900/50 text-white placeholder-slate-400 px-3 py-1.5 rounded border border-slate-700/50 focus:outline-none focus:border-cyan-400 grow min-w-[220px]">
                 <input type="hidden" id="supabaseUrl" value="https://ryhoeaeymskrjsvisofx.supabase.co">
                 <button onclick="hubungkanSupabase()" class="bg-cyan-500 hover:bg-cyan-600 active:scale-95 transition-all text-slate-900 font-semibold px-4 py-1.5 rounded shadow flex items-center gap-1.5 shrink-0">
                     <i class="fa-solid fa-plug text-xs"></i> Hubungkan
+                </button>
+                <div class="h-6 w-px bg-white/20 hidden md:block"></div>
+                <input type="email" id="adminEmail" placeholder="Email admin..." class="bg-slate-900/50 text-white placeholder-slate-400 px-3 py-1.5 rounded border border-slate-700/50 focus:outline-none focus:border-emerald-400 grow min-w-[180px]">
+                <input type="password" id="adminPassword" placeholder="Password admin..." class="bg-slate-900/50 text-white placeholder-slate-400 px-3 py-1.5 rounded border border-slate-700/50 focus:outline-none focus:border-emerald-400 grow min-w-[160px]">
+                <button onclick="loginAdminPortal()" class="bg-emerald-500 hover:bg-emerald-600 active:scale-95 transition-all text-white font-semibold px-4 py-1.5 rounded shadow flex items-center gap-1.5 shrink-0">
+                    <i class="fa-solid fa-right-to-bracket text-xs"></i> Login Admin
                 </button>
             </div>
         </div>
@@ -48,7 +54,7 @@
     <main class="max-w-7xl mx-auto px-4 py-6">
         <div id="connectionStatusBanner" class="mb-6 p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 flex items-center gap-2.5 text-sm shadow-sm transition-all">
             <i class="fa-solid fa-circle-exclamation text-amber-500 text-base"></i>
-            <span><strong>Status Koneksi:</strong> Belum Terhubung ke Database Supabase. Silakan masukkan Anon Key di atas untuk memulai manajemen grup secara dinamis.</span>
+            <span><strong>Status Koneksi:</strong> Belum Terhubung. Masukkan Anon Key, klik Hubungkan, lalu login sebagai admin untuk membuka data grup.</span>
         </div>
 
         <div class="border-b border-slate-200 mb-6 flex flex-wrap gap-1">
@@ -428,27 +434,48 @@
             try {
                 supabaseClient = supabase.createClient(url, key, {
                     auth: {
-                        persistSession: false,
-                        autoRefreshToken: false,
+                        persistSession: true,
+                        autoRefreshToken: true,
                         detectSessionInUrl: false
                     }
                 });
-                supabaseClient.from('machine_groups').select('id, name').limit(1)
-                    .then(({ error }) => {
-                        if (error) throw error;
-                        localStorage.setItem('mizuone_sb_url', url);
-                        localStorage.setItem('mizuone_sb_key', key);
+                localStorage.setItem('mizuone_sb_url', url);
+                localStorage.setItem('mizuone_sb_key', key);
 
-                        document.getElementById('connectionStatusBanner').className = "mb-6 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-2.5 text-sm shadow-sm";
-                        document.getElementById('connectionStatusBanner').innerHTML = `<i class="fa-solid fa-circle-check text-emerald-500 text-base"></i><span><strong>Status Terkoneksi:</strong> Manajemen multi-grup dinamis aktif.</span>`;
+                document.getElementById('connectionStatusBanner').className = "mb-6 p-3 rounded-lg bg-sky-50 border border-sky-200 text-sky-800 flex items-center gap-2.5 text-sm shadow-sm";
+                document.getElementById('connectionStatusBanner').innerHTML = `<i class="fa-solid fa-plug-circle-check text-sky-500 text-base"></i><span><strong>Client Siap:</strong> Anon key sudah dimuat. Login sebagai admin untuk membaca data yang dilindungi RLS.</span>`;
 
-                        tunjukkanNotifikasi('success', 'Koneksi Sukses', 'Database terhubung sempurna.');
-                        muatDataGrup();
-                        muatDaftarTeknisi();
-                        muatDaftarMesin();
-                    })
-                    .catch(err => { tunjukkanNotifikasi('error', 'Koneksi Gagal', err.message); });
+                tunjukkanNotifikasi('success', 'Client Siap', 'Sekarang login sebagai admin portal.');
             } catch (e) { tunjukkanNotifikasi('error', 'Error Initial', e.message); }
+        }
+
+        async function loginAdminPortal() {
+            if (!supabaseClient) {
+                hubungkanSupabase();
+                if (!supabaseClient) return;
+            }
+
+            const email = document.getElementById('adminEmail').value.trim();
+            const password = document.getElementById('adminPassword').value;
+            if (!email || !password) {
+                tunjukkanNotifikasi('error', 'Login Belum Lengkap', 'Isi email dan password admin.');
+                return;
+            }
+
+            try {
+                const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error) throw error;
+
+                document.getElementById('connectionStatusBanner').className = "mb-6 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-2.5 text-sm shadow-sm";
+                document.getElementById('connectionStatusBanner').innerHTML = `<i class="fa-solid fa-circle-check text-emerald-500 text-base"></i><span><strong>Admin Aktif:</strong> Portal terhubung sebagai admin. Data grup dan registrasi kini bisa dimuat.</span>`;
+
+                tunjukkanNotifikasi('success', 'Login Admin Berhasil', 'Data portal sedang dimuat.');
+                muatDataGrup();
+                muatDaftarTeknisi();
+                muatDaftarMesin();
+            } catch (err) {
+                tunjukkanNotifikasi('error', 'Login Admin Gagal', err.message);
+            }
         }
 
         function muatDataGrup() {
@@ -566,9 +593,18 @@ WHERE lower(au.email) = lower('${escapeSqlLiteral(email)}');`;
             }
 
             try {
-                const { error } = await supabaseClient.auth.signUp({ email, password });
+                const url = document.getElementById('supabaseUrl').value.trim();
+                const key = document.getElementById('supabaseKey').value.trim();
+                const registrationClient = supabase.createClient(url, key, {
+                    auth: {
+                        persistSession: false,
+                        autoRefreshToken: false,
+                        detectSessionInUrl: false
+                    }
+                });
+                const { error } = await registrationClient.auth.signUp({ email, password });
                 if (error) throw error;
-                await supabaseClient.auth.signOut({ scope: 'local' }).catch(() => {});
+                await registrationClient.auth.signOut({ scope: 'local' }).catch(() => {});
 
                 perbaruiPreviewSQLMitra();
                 tunjukkanNotifikasi('success', 'Akun Auth Dibuat', 'Lanjut jalankan SQL seed role di Supabase SQL Editor.');
