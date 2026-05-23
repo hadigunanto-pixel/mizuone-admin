@@ -55,6 +55,9 @@
             <button onclick="gantiTab('teknisi')" id="tabBtn-teknisi" class="px-5 py-3 font-medium text-sm border-b-2 transition-all flex items-center gap-2 border-blue-600 text-blue-600 bg-white rounded-t-lg shadow-sm">
                 <i class="fa-solid fa-user-gear"></i> Registrasi Teknisi
             </button>
+            <button onclick="gantiTab('mitra')" id="tabBtn-mitra" class="px-5 py-3 font-medium text-sm border-b-2 transition-all flex items-center gap-2 border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-t-lg">
+                <i class="fa-solid fa-handshake"></i> Register Mitra
+            </button>
             <button onclick="gantiTab('mesin')" id="tabBtn-mesin" class="px-5 py-3 font-medium text-sm border-b-2 transition-all flex items-center gap-2 border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-t-lg">
                 <i class="fa-solid fa-server"></i> Registrasi Mesin Baru
             </button>
@@ -124,6 +127,82 @@
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-mitra" class="tab-content hidden transition-all duration-200">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200/80 lg:col-span-1">
+                    <h2 class="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-handshake text-emerald-600"></i> Register Akun Mitra Dashboard
+                    </h2>
+                    <form id="formMitra" onsubmit="registerMitraAuth(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Email Login Mitra</label>
+                            <input type="email" id="mitraEmail" required placeholder="contoh: partner.malang@domain.com" oninput="perbaruiPreviewSQLMitra()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Password Sementara</label>
+                            <input type="password" id="mitraPassword" required minlength="6" placeholder="Minimal 6 karakter" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                            <p class="mt-1 text-[11px] text-slate-400">Password tidak disimpan di halaman ini. Minta user ganti password setelah login pertama.</p>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Role Dashboard</label>
+                            <select id="mitraRole" onchange="perbaruiPreviewSQLMitra()" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-slate-600">
+                                <option value="partner">Partner / Mitra</option>
+                                <option value="operator">Operator Grup</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Scope Machine Group</label>
+                            <select id="mitraGroupId" onchange="perbaruiPreviewSQLMitra()" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-slate-600">
+                                <option value="">-- Hubungkan Supabase Terlebih Dahulu --</option>
+                            </select>
+                        </div>
+                        <div class="rounded-lg border border-amber-200 bg-amber-50 p-3 text-[11px] leading-relaxed text-amber-800">
+                            <div class="font-bold mb-1 flex items-center gap-1.5">
+                                <i class="fa-solid fa-shield-halved"></i> Alur Aman
+                            </div>
+                            Tombol ini hanya membuat akun Auth via anon key. Role `user_roles` tetap harus di-seed oleh admin melalui SQL Editor agar tidak menaruh service role di browser.
+                        </div>
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 rounded-lg shadow text-sm transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-user-plus"></i> Buat Akun Auth Mitra
+                        </button>
+                    </form>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200/80 lg:col-span-2">
+                    <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
+                        <div>
+                            <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                                <i class="fa-solid fa-key text-emerald-600"></i> SQL Seed Role Mitra
+                            </h2>
+                            <p class="text-xs text-slate-500 mt-1">Jalankan SQL ini di Supabase SQL Editor setelah akun Auth berhasil dibuat.</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="perbaruiPreviewSQLMitra()" class="text-xs text-emerald-700 hover:text-emerald-900 flex items-center gap-1 font-medium bg-emerald-50 px-2.5 py-1.5 rounded-md border border-emerald-100">
+                                <i class="fa-solid fa-rotate"></i> Generate
+                            </button>
+                            <button onclick="salinSQLMitra()" class="text-xs text-slate-700 hover:text-slate-900 flex items-center gap-1 font-medium bg-slate-100 px-2.5 py-1.5 rounded-md border border-slate-200">
+                                <i class="fa-solid fa-copy"></i> Salin SQL
+                            </button>
+                        </div>
+                    </div>
+                    <pre id="mitraSQLPreview" class="bg-slate-900 text-slate-200 p-4 rounded-xl text-xs font-mono shadow-inner border border-slate-800 overflow-x-auto leading-relaxed min-h-[260px]"></pre>
+                    <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                        <div class="rounded-lg bg-slate-50 border border-slate-200 p-3">
+                            <div class="font-bold text-slate-800 mb-1">1. Register</div>
+                            <p class="text-slate-500 leading-relaxed">Buat akun Auth dari form kiri menggunakan email dan password sementara.</p>
+                        </div>
+                        <div class="rounded-lg bg-slate-50 border border-slate-200 p-3">
+                            <div class="font-bold text-slate-800 mb-1">2. Seed Role</div>
+                            <p class="text-slate-500 leading-relaxed">Jalankan SQL preview ini dengan akses admin di Supabase SQL Editor.</p>
+                        </div>
+                        <div class="rounded-lg bg-slate-50 border border-slate-200 p-3">
+                            <div class="font-bold text-slate-800 mb-1">3. Test Login</div>
+                            <p class="text-slate-500 leading-relaxed">Login sebagai mitra dan pastikan hanya group terpilih yang terlihat.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -316,9 +395,16 @@
                 btn.className = "px-5 py-3 font-medium text-sm border-b-2 transition-all flex items-center gap-2 border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-t-lg";
             });
 
-            const activeColor = tabId === 'mesin' ? 'border-indigo-600 text-indigo-600' : (tabId === 'simulator' ? 'border-amber-500 text-amber-600' : (tabId === 'sql' ? 'border-slate-700 text-slate-800' : 'border-blue-600 text-blue-600'));
+            const activeColor = tabId === 'mesin'
+                ? 'border-indigo-600 text-indigo-600'
+                : (tabId === 'mitra'
+                    ? 'border-emerald-600 text-emerald-600'
+                    : (tabId === 'simulator'
+                        ? 'border-amber-500 text-amber-600'
+                        : (tabId === 'sql' ? 'border-slate-700 text-slate-800' : 'border-blue-600 text-blue-600')));
             document.getElementById(`tabBtn-${tabId}`).className = `px-5 py-3 font-medium text-sm border-b-2 transition-all flex items-center gap-2 bg-white rounded-t-lg shadow-sm ${activeColor}`;
             if(tabId === 'simulator') perbaruiPreviewJSON();
+            if(tabId === 'mitra') perbaruiPreviewSQLMitra();
         }
 
         function tunjukkanNotifikasi(tipe, judul, pesan) {
@@ -340,7 +426,13 @@
             if (!key) { tunjukkanNotifikasi('error', 'Kunci Anon Kosong', 'Silakan masukkan Public Anon Key Anda.'); return; }
 
             try {
-                supabaseClient = supabase.createClient(url, key);
+                supabaseClient = supabase.createClient(url, key, {
+                    auth: {
+                        persistSession: false,
+                        autoRefreshToken: false,
+                        detectSessionInUrl: false
+                    }
+                });
                 supabaseClient.from('machine_groups').select('id, name').limit(1)
                     .then(({ error }) => {
                         if (error) throw error;
@@ -372,6 +464,7 @@
         function populasiDropdownGrup(grupData) {
             const selectTech = document.getElementById('techGroupId');
             const selectMach = document.getElementById('machGroupId');
+            const selectMitra = document.getElementById('mitraGroupId');
 
             selectTech.innerHTML = '<option value="">-- Pilih Wilayah / Grup Kerja --</option>';
             if (grupData && grupData.length > 0) {
@@ -381,6 +474,18 @@
                     opt.textContent = g.name;
                     selectTech.appendChild(opt);
                 });
+            }
+
+            if (selectMitra) {
+                selectMitra.innerHTML = '<option value="">-- Pilih Scope Machine Group --</option>';
+                if (grupData && grupData.length > 0) {
+                    grupData.forEach(g => {
+                        const opt = document.createElement('option');
+                        opt.value = g.id;
+                        opt.textContent = g.name;
+                        selectMitra.appendChild(opt);
+                    });
+                }
             }
 
             selectMach.innerHTML = '<option value="">-- Pilih Wilayah / Machine Group --</option>';
@@ -397,6 +502,92 @@
             optNew.textContent = "➕ (+ Tambah Wilayah / Grup Baru +)";
             optNew.className = "text-blue-600 font-bold bg-blue-50";
             selectMach.appendChild(optNew);
+            perbaruiPreviewSQLMitra();
+        }
+
+        function escapeSqlLiteral(value) {
+            return String(value || '').replace(/'/g, "''");
+        }
+
+        function getSelectedMitraGroupName() {
+            const select = document.getElementById('mitraGroupId');
+            if (!select || !select.value) return '';
+            return select.options[select.selectedIndex]?.textContent || '';
+        }
+
+        function perbaruiPreviewSQLMitra() {
+            const preview = document.getElementById('mitraSQLPreview');
+            if (!preview) return;
+
+            const email = (document.getElementById('mitraEmail')?.value || 'partner.malang@example.com').trim().toLowerCase();
+            const role = document.getElementById('mitraRole')?.value || 'partner';
+            const groupId = document.getElementById('mitraGroupId')?.value || '00000000-0000-0000-0000-000000000000';
+            const groupName = getSelectedMitraGroupName() || 'Pilih group dahulu';
+
+            preview.textContent = `-- Seed role dashboard Mizuone untuk akun mitra/operator.
+-- Jalankan di Supabase SQL Editor setelah akun Auth berhasil dibuat.
+-- Scope: ${groupName}
+
+INSERT INTO public.user_roles (user_id, role, machine_group_id)
+SELECT
+  id,
+  '${escapeSqlLiteral(role)}'::public.app_role,
+  '${escapeSqlLiteral(groupId)}'::uuid
+FROM auth.users
+WHERE lower(email) = lower('${escapeSqlLiteral(email)}')
+ON CONFLICT (user_id, role, machine_group_id) DO NOTHING;
+
+-- Verifikasi hasil:
+SELECT
+  ur.user_id,
+  au.email,
+  ur.role,
+  ur.machine_group_id,
+  mg.name AS machine_group_name
+FROM public.user_roles ur
+LEFT JOIN auth.users au ON au.id = ur.user_id
+LEFT JOIN public.machine_groups mg ON mg.id = ur.machine_group_id
+WHERE lower(au.email) = lower('${escapeSqlLiteral(email)}');`;
+        }
+
+        async function registerMitraAuth(e) {
+            e.preventDefault();
+            if (!supabaseClient) {
+                tunjukkanNotifikasi('error', 'Database Belum Terhubung', 'Hubungkan Supabase terlebih dahulu.');
+                return;
+            }
+
+            const email = document.getElementById('mitraEmail').value.trim().toLowerCase();
+            const password = document.getElementById('mitraPassword').value;
+            const groupId = document.getElementById('mitraGroupId').value;
+            if (!groupId) {
+                tunjukkanNotifikasi('error', 'Scope Kosong', 'Pilih machine group untuk role mitra/operator.');
+                return;
+            }
+
+            try {
+                const { error } = await supabaseClient.auth.signUp({ email, password });
+                if (error) throw error;
+                await supabaseClient.auth.signOut({ scope: 'local' }).catch(() => {});
+
+                perbaruiPreviewSQLMitra();
+                tunjukkanNotifikasi('success', 'Akun Auth Dibuat', 'Lanjut jalankan SQL seed role di Supabase SQL Editor.');
+                document.getElementById('mitraPassword').value = '';
+            } catch (err) {
+                tunjukkanNotifikasi('error', 'Register Gagal', err.message);
+            }
+        }
+
+        function salinSQLMitra() {
+            perbaruiPreviewSQLMitra();
+            const codeText = document.getElementById('mitraSQLPreview').textContent;
+            const tempInput = document.createElement('textarea');
+            tempInput.value = codeText;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            tunjukkanNotifikasi('success', 'SQL Disalin', 'Seed role mitra siap dijalankan di Supabase SQL Editor.');
         }
 
         async function triggerTambahGrupManual() {
