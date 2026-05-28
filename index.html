@@ -382,10 +382,72 @@
         let daftarGrupCache = [];
 
         const skenarioTemplates = {
-            14: { record: { data_type: 14, device_no: "86340323", status: "OFFLINE", sensor_status: "NORMAL", water_status: "NORMAL", tds_clean_water: 12, filter_carbon_wear: 45, filter_sediment_wear: 30, created_at: new Date().toISOString() } },
-            12: { record: { data_type: 12, device_no: "86340323", status: "ONLINE", sensor_status: "KENDALA_ALAT", water_status: "HABIS", tds_clean_water: 78, filter_carbon_wear: 50, filter_sediment_wear: 32, created_at: new Date().toISOString() } },
-            13: { record: { data_type: 13, device_no: "86340323", status: "ONLINE", sensor_status: "NORMAL", water_status: "NORMAL", tds_clean_water: 14, filter_carbon_wear: 94, filter_sediment_wear: 60, created_at: new Date().toISOString() } },
-            2:  { record: { data_type: 2, device_no: "86340323", cash: 50, price: 19, volume: 1800, outlet: 1, water_time: Date.now(), created_at: new Date().toISOString() } }
+            14: {
+                record: {
+                    data_type: 14,
+                    device_no: "86340323",
+                    payload: {
+                        data_type: "14",
+                        device_no: "86340323",
+                        is_online: "0",
+                        offline_time: new Date().toISOString(),
+                        timestamp: String(Date.now())
+                    },
+                    received_at: new Date().toISOString()
+                }
+            },
+            12: {
+                record: {
+                    data_type: 12,
+                    device_no: "86340323",
+                    payload: {
+                        data_type: "12",
+                        device_no: "86340323",
+                        power_status: "1",
+                        miss_status: "1",
+                        level_switch: "0",
+                        pure_tds: "78",
+                        raw_tds: "311",
+                        temperature: "29",
+                        humidity: "40",
+                        create_time: new Date().toISOString(),
+                        timestamp: String(Date.now())
+                    },
+                    received_at: new Date().toISOString()
+                }
+            },
+            13: {
+                record: {
+                    data_type: 13,
+                    device_no: "86340323",
+                    payload: {
+                        data_type: "13",
+                        device_no: "86340323",
+                        filter_level: [1, 2, 3, 4, 5, 6],
+                        used_rate: [9400, 5100, 4200, 3300, 2200, 1100],
+                        used_quantity: [940, 510, 420, 330, 220, 110],
+                        start_time: [Date.now(), Date.now(), Date.now(), Date.now(), Date.now(), Date.now()],
+                        reset_time: [Date.now(), Date.now(), Date.now(), Date.now(), Date.now(), Date.now()]
+                    },
+                    received_at: new Date().toISOString()
+                }
+            },
+            2:  {
+                record: {
+                    data_type: 2,
+                    device_no: "86340206",
+                    payload: {
+                        data_type: "2",
+                        device_no: "86340206",
+                        cash: "100",
+                        price: "24",
+                        volume: "3600",
+                        outlet: "1",
+                        water_time: String(Date.now())
+                    },
+                    received_at: new Date().toISOString()
+                }
+            }
         };
 
         function handleLogoError(img) {
@@ -753,9 +815,30 @@ WHERE lower(au.email) = lower('${escapeSqlLiteral(email)}');`;
         }
 
         function perbaruiPreviewJSON() {
-            skenarioTemplates[skenarioAktif].record.created_at = new Date().toISOString();
+            const nowIso = new Date().toISOString();
+            const nowMs = String(Date.now());
+            skenarioTemplates[skenarioAktif].record.received_at = nowIso;
+
+            if (skenarioTemplates[skenarioAktif].record.payload) {
+                skenarioTemplates[skenarioAktif].record.payload.timestamp = nowMs;
+            }
+
+            if (skenarioAktif === 14) {
+                skenarioTemplates[14].record.payload.offline_time = nowIso;
+            }
+
+            if (skenarioAktif === 12) {
+                skenarioTemplates[12].record.payload.create_time = nowIso;
+            }
+
+            if (skenarioAktif === 13) {
+                const filterTime = Date.now();
+                skenarioTemplates[13].record.payload.start_time = [filterTime, filterTime, filterTime, filterTime, filterTime, filterTime];
+                skenarioTemplates[13].record.payload.reset_time = [filterTime, filterTime, filterTime, filterTime, filterTime, filterTime];
+            }
+
             if (skenarioAktif === 2) {
-                skenarioTemplates[2].record.water_time = Date.now();
+                skenarioTemplates[2].record.payload.water_time = nowMs;
             }
             document.getElementById('jsonPreview').textContent = JSON.stringify(skenarioTemplates[skenarioAktif], null, 2);
         }
@@ -765,9 +848,17 @@ WHERE lower(au.email) = lower('${escapeSqlLiteral(email)}');`;
             if (!webhookUrl) { tunjukkanNotifikasi('error', 'URL Kosong', 'Harap masukkan URL Webhook n8n Anda.'); return; }
             perbaruiPreviewJSON();
             fetch(webhookUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(skenarioTemplates[skenarioAktif]) })
-                .then(res => {
-                    if (res.ok) tunjukkanNotifikasi('success', 'Sukses', 'Sinyal simulasi berhasil diantarkan.');
-                    else throw new Error("Server Reject");
+                .then(async res => {
+                    const text = await res.text();
+                    let body = {};
+                    try { body = text ? JSON.parse(text) : {}; } catch { body = { text }; }
+
+                    if (!res.ok) throw new Error(body.message || body.error || "Server Reject");
+
+                    const info = body.telegram_sent === true
+                        ? 'Telegram terkirim.'
+                        : (body.reason ? `Tidak kirim Telegram: ${body.reason}` : 'Sinyal simulasi berhasil diantarkan.');
+                    tunjukkanNotifikasi('success', 'Sukses', info);
                 }).catch(err => tunjukkanNotifikasi('error', 'Gagal', err.message));
         }
 
